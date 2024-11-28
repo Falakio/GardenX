@@ -1,5 +1,5 @@
-import { useEffect, useState, Fragment } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState, Fragment } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Container,
@@ -29,81 +29,66 @@ import {
   ListItemText,
   Divider,
   TextField,
-} from '@mui/material'
-import { Visibility, Print, Assessment } from '@mui/icons-material'
-import { supabase, isAdmin, updateOrderStatus } from '../services/supabase'
-import { useAuth } from '../contexts/AuthContext'
+} from "@mui/material";
+import { Visibility, Print, Assessment } from "@mui/icons-material";
+import { supabase, isAdmin, updateOrderStatus } from "../services/supabase";
+import { useAuth } from "../contexts/AuthContext";
 
-const ORDER_STATUSES = ['pending', 'confirmed', 'delivered', 'cancelled']
+const ORDER_STATUSES = ["pending", "confirmed", "delivered", "cancelled"];
 const STATUS_ORDER = {
-  'pending': 0,
-  'confirmed': 1,
-  'delivered': 2,
-  'cancelled': 3
-}
-
-const getStatusColor = (status) => {
-  switch (status.toLowerCase()) {
-    case 'pending':
-      return 'warning'
-    case 'confirmed':
-      return 'info'
-    case 'delivered':
-      return 'success'
-    case 'cancelled':
-      return 'error'
-    default:
-      return 'default'
-  }
-}
+  pending: 0,
+  confirmed: 1,
+  delivered: 2,
+  cancelled: 3,
+};
 
 const getStatusBgColor = (status) => {
   switch (status.toLowerCase()) {
-    case 'pending':
-      return '#fff3e0'  // Light orange
-    case 'confirmed':
-      return '#e3f2fd'  // Light blue
-    case 'delivered':
-      return '#e8f5e9'  // Light green
-    case 'cancelled':
-      return '#ffebee'  // Light red
+    case "pending":
+      return "#fff3e0"; // Light orange
+    case "confirmed":
+      return "#e3f2fd"; // Light blue
+    case "delivered":
+      return "#e8f5e9"; // Light green
+    case "cancelled":
+      return "#ffebee"; // Light red
     default:
-      return '#f5f5f5'  // Light grey
+      return "#f5f5f5"; // Light grey
   }
-}
+};
 
 const getStatusTextColor = (status) => {
   switch (status.toLowerCase()) {
-    case 'pending':
-      return '#ed6c02'  // Orange
-    case 'confirmed':
-      return '#0288d1'  // Blue
-    case 'delivered':
-      return '#2e7d32'  // Green
-    case 'cancelled':
-      return '#d32f2f'  // Red
+    case "pending":
+      return "#ed6c02"; // Orange
+    case "confirmed":
+      return "#0288d1"; // Blue
+    case "delivered":
+      return "#2e7d32"; // Green
+    case "cancelled":
+      return "#d32f2f"; // Red
     default:
-      return '#757575'  // Grey
+      return "#757575"; // Grey
   }
-}
+};
 
 const StatusMenuItem = ({ status }) => (
   <Box
     sx={{
-      width: '100%',
+      width: "100%",
       py: 1,
       px: 2,
       backgroundColor: getStatusBgColor(status),
       color: getStatusTextColor(status),
-      '&:hover': {
+      "&:hover": {
         backgroundColor: getStatusBgColor(status),
-        filter: 'brightness(0.95)',
-      }
+        filter: "brightness(0.95)",
+      },
     }}
   >
     {status.charAt(0).toUpperCase() + status.slice(1)}
   </Box>
-)
+);
 
 const StatusDisplay = ({ status }) => (
   <Box
@@ -113,17 +98,17 @@ const StatusDisplay = ({ status }) => (
       backgroundColor: getStatusBgColor(status),
       color: getStatusTextColor(status),
       borderRadius: 1,
-      display: 'inline-block',
+      display: "inline-block",
       minWidth: 90,
-      textAlign: 'center'
+      textAlign: "center",
     }}
   >
     {status.charAt(0).toUpperCase() + status.slice(1)}
   </Box>
-)
+);
 
 function OrderDetailsDialog({ open, onClose, order }) {
-  if (!order) return null
+  if (!order) return null;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -136,7 +121,9 @@ function OrderDetailsDialog({ open, onClose, order }) {
       <DialogContent dividers>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>Ordered Items</Typography>
+            <Typography variant="h6" gutterBottom>
+              Ordered Items
+            </Typography>
             <TableContainer component={Paper} variant="outlined">
               <Table size="small">
                 <TableHead>
@@ -153,7 +140,9 @@ function OrderDetailsDialog({ open, onClose, order }) {
                       <TableCell>{item.name}</TableCell>
                       <TableCell align="right">{item.quantity}</TableCell>
                       <TableCell align="right">AED {item.price}</TableCell>
-                      <TableCell align="right">AED {item.quantity * item.price}</TableCell>
+                      <TableCell align="right">
+                        AED {item.quantity * item.price}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -163,18 +152,26 @@ function OrderDetailsDialog({ open, onClose, order }) {
 
           <Grid item xs={12}>
             <Divider />
-            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>Student Information</Typography>
+            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+              Student Information
+            </Typography>
             <Grid container spacing={2}>
               <Grid item xs={4}>
-                <Typography variant="subtitle2" color="text.secondary">Name</Typography>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Name
+                </Typography>
                 <Typography>{order.student_name}</Typography>
               </Grid>
               <Grid item xs={4}>
-                <Typography variant="subtitle2" color="text.secondary">Class</Typography>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Class
+                </Typography>
                 <Typography>{order.class_name}</Typography>
               </Grid>
               <Grid item xs={4}>
-                <Typography variant="subtitle2" color="text.secondary">GEMS ID</Typography>
+                <Typography variant="subtitle2" color="text.secondary">
+                  GEMS ID
+                </Typography>
                 <Typography>{order.gems_id_last_six}</Typography>
               </Grid>
             </Grid>
@@ -182,14 +179,20 @@ function OrderDetailsDialog({ open, onClose, order }) {
 
           <Grid item xs={12}>
             <Divider />
-            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>Parent Information</Typography>
+            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+              Parent Information
+            </Typography>
             <Grid container spacing={2}>
               <Grid item xs={6}>
-                <Typography variant="subtitle2" color="text.secondary">Name</Typography>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Name
+                </Typography>
                 <Typography>{order.user_profiles?.parent_name}</Typography>
               </Grid>
               <Grid item xs={6}>
-                <Typography variant="subtitle2" color="text.secondary">Email</Typography>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Email
+                </Typography>
                 <Typography>{order.user_profiles?.parent_email}</Typography>
               </Grid>
             </Grid>
@@ -197,19 +200,29 @@ function OrderDetailsDialog({ open, onClose, order }) {
 
           <Grid item xs={12}>
             <Divider />
-            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>Order Summary</Typography>
+            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+              Order Summary
+            </Typography>
             <Grid container spacing={2}>
               <Grid item xs={4}>
-                <Typography variant="subtitle2" color="text.secondary">Status</Typography>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Status
+                </Typography>
                 <StatusDisplay status={order.status} />
               </Grid>
               <Grid item xs={4}>
-                <Typography variant="subtitle2" color="text.secondary">Total Amount</Typography>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Total Amount
+                </Typography>
                 <Typography>AED {order.total_amount}</Typography>
               </Grid>
               <Grid item xs={4}>
-                <Typography variant="subtitle2" color="text.secondary">Order Date</Typography>
-                <Typography>{new Date(order.created_at).toLocaleDateString('en-GB')}</Typography>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Order Date
+                </Typography>
+                <Typography>
+                  {new Date(order.created_at).toLocaleDateString("en-GB")}
+                </Typography>
               </Grid>
             </Grid>
           </Grid>
@@ -219,12 +232,12 @@ function OrderDetailsDialog({ open, onClose, order }) {
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
     </Dialog>
-  )
+  );
 }
 
 function EarningsReportDialog({ open, onClose, orders }) {
   const [reportData, setReportData] = useState(null);
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split("T")[0];
   const [startDate, setStartDate] = useState(today);
   const [endDate, setEndDate] = useState(today);
   const [error, setError] = useState(null);
@@ -238,8 +251,8 @@ function EarningsReportDialog({ open, onClose, orders }) {
       }
 
       // Filter orders by date range and delivered status
-      const filteredOrders = orders.filter(order => {
-        if (!order.delivered_at || order.status !== 'delivered') return false;
+      const filteredOrders = orders.filter((order) => {
+        if (!order.delivered_at || order.status !== "delivered") return false;
         const deliveryDate = new Date(order.delivered_at);
         const start = startDate ? new Date(startDate) : new Date(0);
         const end = endDate ? new Date(endDate) : new Date();
@@ -255,11 +268,11 @@ function EarningsReportDialog({ open, onClose, orders }) {
 
       // Group orders by delivery date for daily totals
       const ordersByDate = filteredOrders.reduce((acc, order) => {
-        const date = new Date(order.delivered_at).toLocaleDateString('en-GB');
+        const date = new Date(order.delivered_at).toLocaleDateString("en-GB");
         if (!acc[date]) {
           acc[date] = {
             orders: [],
-            total: 0
+            total: 0,
           };
         }
         acc[date].orders.push(order);
@@ -270,14 +283,14 @@ function EarningsReportDialog({ open, onClose, orders }) {
       // Calculate items summary
       const itemsSummary = filteredOrders.reduce((acc, order) => {
         if (!order.items) return acc;
-        order.items.forEach(item => {
+        order.items.forEach((item) => {
           if (!acc[item.name]) {
             acc[item.name] = {
               quantity: 0,
-              revenue: 0
+              revenue: 0,
             };
           }
-          acc[item.name].quantity += (item.quantity || 0);
+          acc[item.name].quantity += item.quantity || 0;
           acc[item.name].revenue += (item.quantity || 0) * (item.price || 0);
         });
         return acc;
@@ -286,15 +299,18 @@ function EarningsReportDialog({ open, onClose, orders }) {
       // Calculate total statistics
       const report = {
         totalOrders: filteredOrders.length,
-        totalEarnings: filteredOrders.reduce((sum, order) => sum + parseFloat(order.total_amount || 0), 0),
+        totalEarnings: filteredOrders.reduce(
+          (sum, order) => sum + parseFloat(order.total_amount || 0),
+          0
+        ),
         ordersByDate,
-        itemsSummary
+        itemsSummary,
       };
 
       setError(null);
       setReportData(report);
     } catch (err) {
-      console.error('Error generating report:', err);
+      console.error("Error generating report:", err);
       setError("Error generating report. Please try again.");
       setReportData(null);
     }
@@ -303,10 +319,13 @@ function EarningsReportDialog({ open, onClose, orders }) {
   const printReport = () => {
     if (!reportData) return;
 
-    const printWindow = window.open('', '_blank');
-    const dateRange = startDate && endDate 
-      ? `${new Date(startDate).toLocaleDateString('en-GB')} to ${new Date(endDate).toLocaleDateString('en-GB')}`
-      : 'All Time';
+    const printWindow = window.open("", "_blank");
+    const dateRange =
+      startDate && endDate
+        ? `${new Date(startDate).toLocaleDateString("en-GB")} to ${new Date(
+            endDate
+          ).toLocaleDateString("en-GB")}`
+        : "All Time";
 
     printWindow.document.write(`
       <html>
@@ -401,13 +420,16 @@ function EarningsReportDialog({ open, onClose, orders }) {
               <tbody>
                 ${Object.entries(reportData.itemsSummary)
                   .sort((a, b) => b[1].revenue - a[1].revenue)
-                  .map(([itemName, data]) => `
+                  .map(
+                    ([itemName, data]) => `
                     <tr>
                       <td>${itemName}</td>
                       <td>${data.quantity}</td>
                       <td>AED ${data.revenue.toFixed(2)}</td>
                     </tr>
-                  `).join('')}
+                  `
+                  )
+                  .join("")}
               </tbody>
             </table>
           </div>
@@ -425,38 +447,61 @@ function EarningsReportDialog({ open, onClose, orders }) {
               </thead>
               <tbody>
                 ${Object.entries(reportData.ordersByDate)
-                  .sort((a, b) => new Date(b[0].split('/').reverse().join('-')) - new Date(a[0].split('/').reverse().join('-')))
-                  .map(([date, dayData]) => `
-                    ${dayData.orders.map(order => `
+                  .sort(
+                    (a, b) =>
+                      new Date(b[0].split("/").reverse().join("-")) -
+                      new Date(a[0].split("/").reverse().join("-"))
+                  )
+                  .map(
+                    ([date, dayData]) => `
+                    ${dayData.orders
+                      .map(
+                        (order) => `
                       <tr>
-                        <td>${new Date(order.delivered_at).toLocaleDateString('en-GB')}</td>
-                        <td>${order.user_profiles?.parent_name || 'N/A'}${order.user_profiles?.student_class === 'NA' ? ' (S)' : ''}</td>
+                        <td>${new Date(order.delivered_at).toLocaleDateString(
+                          "en-GB"
+                        )}</td>
+                        <td>${order.user_profiles?.parent_name || "N/A"}${
+                          order.user_profiles?.student_class === "NA"
+                            ? " (S)"
+                            : ""
+                        }</td>
                         <td>
                           <ul class="items-list">
-                            ${order.items.map(item => `
+                            ${order.items
+                              .map(
+                                (item) => `
                               <li>${item.name} × ${item.quantity}</li>
-                            `).join('')}
+                            `
+                              )
+                              .join("")}
                           </ul>
                         </td>
-                        <td class="order-total">AED ${parseFloat(order.total_amount).toFixed(2)}</td>
+                        <td class="order-total">AED ${parseFloat(
+                          order.total_amount
+                        ).toFixed(2)}</td>
                       </tr>
-                    `).join('')}
+                    `
+                      )
+                      .join("")}
                     <tr class="day-total">
                       <td colspan="3">Day Earnings (${date}):</td>
                       <td>AED ${dayData.total.toFixed(2)}</td>
                     </tr>
-                  `).join('')}
+                  `
+                  )
+                  .join("")}
               </tbody>
             </table>
           </div>
 
           <div class="footer">
-            <p>Generated on: ${new Date().toLocaleString('en-GB')}</p>
+            <p>Generated on: ${new Date().toLocaleString("en-GB")}</p>
           </div>
         </body>
       </html>
     `);
-    
+
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();
@@ -471,7 +516,7 @@ function EarningsReportDialog({ open, onClose, orders }) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Earnings Report</DialogTitle>
-      
+
       <DialogContent>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
@@ -494,20 +539,20 @@ function EarningsReportDialog({ open, onClose, orders }) {
               InputLabelProps={{ shrink: true }}
             />
           </Grid>
-          
+
           <Grid item xs={12}>
-            <Button 
-              fullWidth 
-              variant="contained" 
+            <Button
+              fullWidth
+              variant="contained"
               onClick={generateReport}
               sx={{ mb: 2 }}
             >
               Generate Report
             </Button>
             {reportData && (
-              <Button 
-                fullWidth 
-                variant="outlined" 
+              <Button
+                fullWidth
+                variant="outlined"
                 onClick={printReport}
                 sx={{ mb: 2 }}
               >
@@ -518,20 +563,30 @@ function EarningsReportDialog({ open, onClose, orders }) {
 
           {error && (
             <Grid item xs={12}>
-              <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
             </Grid>
           )}
 
           {reportData && (
             <>
               <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom>Summary</Typography>
-                <Typography>Total Delivered Orders: {reportData.totalOrders}</Typography>
-                <Typography>Total Earnings: AED {reportData.totalEarnings.toFixed(2)}</Typography>
+                <Typography variant="h6" gutterBottom>
+                  Summary
+                </Typography>
+                <Typography>
+                  Total Delivered Orders: {reportData.totalOrders}
+                </Typography>
+                <Typography>
+                  Total Earnings: AED {reportData.totalEarnings.toFixed(2)}
+                </Typography>
               </Grid>
 
               <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>Items Summary</Typography>
+                <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+                  Items Summary
+                </Typography>
                 <TableContainer component={Paper}>
                   <Table size="small">
                     <TableHead>
@@ -548,7 +603,9 @@ function EarningsReportDialog({ open, onClose, orders }) {
                           <TableRow key={itemName}>
                             <TableCell>{itemName}</TableCell>
                             <TableCell align="right">{data.quantity}</TableCell>
-                            <TableCell align="right">AED {data.revenue.toFixed(2)}</TableCell>
+                            <TableCell align="right">
+                              AED {data.revenue.toFixed(2)}
+                            </TableCell>
                           </TableRow>
                         ))}
                     </TableBody>
@@ -557,7 +614,9 @@ function EarningsReportDialog({ open, onClose, orders }) {
               </Grid>
 
               <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>All Orders</Typography>
+                <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+                  All Orders
+                </Typography>
                 <TableContainer component={Paper}>
                   <Table size="small">
                     <TableHead>
@@ -570,36 +629,55 @@ function EarningsReportDialog({ open, onClose, orders }) {
                     </TableHead>
                     <TableBody>
                       {Object.entries(reportData.ordersByDate)
-                        .sort((a, b) => new Date(b[0].split('/').reverse().join('-')) - new Date(a[0].split('/').reverse().join('-')))
+                        .sort(
+                          (a, b) =>
+                            new Date(b[0].split("/").reverse().join("-")) -
+                            new Date(a[0].split("/").reverse().join("-"))
+                        )
                         .map(([date, dayData]) => (
                           <Fragment key={date}>
-                            {dayData.orders.map(order => (
+                            {dayData.orders.map((order) => (
                               <TableRow key={order.id}>
-                                <TableCell>{new Date(order.delivered_at).toLocaleDateString('en-GB')}</TableCell>
                                 <TableCell>
-                                  {order.user_profiles?.parent_name || 'N/A'}
-                                  {order.user_profiles?.student_class === 'NA' ? ' (S)' : ''}
+                                  {new Date(
+                                    order.delivered_at
+                                  ).toLocaleDateString("en-GB")}
+                                </TableCell>
+                                <TableCell>
+                                  {order.user_profiles?.parent_name || "N/A"}
+                                  {order.user_profiles?.student_class === "NA"
+                                    ? " (S)"
+                                    : ""}
                                 </TableCell>
                                 <TableCell>
                                   <List dense>
-                                    {order.items.map(item => (
+                                    {order.items.map((item) => (
                                       <ListItem key={item.name}>
-                                        <ListItemText primary={`${item.name} × ${item.quantity}`} />
+                                        <ListItemText
+                                          primary={`${item.name} × ${item.quantity}`}
+                                        />
                                       </ListItem>
                                     ))}
                                   </List>
                                 </TableCell>
-                                <TableCell align="right">AED {parseFloat(order.total_amount).toFixed(2)}</TableCell>
+                                <TableCell align="right">
+                                  AED{" "}
+                                  {parseFloat(order.total_amount).toFixed(2)}
+                                </TableCell>
                               </TableRow>
                             ))}
-                            <TableRow 
-                              sx={{ 
-                                backgroundColor: '#f8f8f8',
-                                fontWeight: 'bold'
+                            <TableRow
+                              sx={{
+                                backgroundColor: "#f8f8f8",
+                                fontWeight: "bold",
                               }}
                             >
-                              <TableCell colSpan={3} align="right">Day Earnings ({date}):</TableCell>
-                              <TableCell align="right">AED {dayData.total.toFixed(2)}</TableCell>
+                              <TableCell colSpan={3} align="right">
+                                Day Earnings ({date}):
+                              </TableCell>
+                              <TableCell align="right">
+                                AED {dayData.total.toFixed(2)}
+                              </TableCell>
                             </TableRow>
                           </Fragment>
                         ))}
@@ -619,57 +697,62 @@ function EarningsReportDialog({ open, onClose, orders }) {
 }
 
 function AdminOrders() {
-  const navigate = useNavigate()
-  const { user } = useAuth()
-  const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
-  const [orderBy, setOrderBy] = useState('created_at')
-  const [order, setOrder] = useState('desc')
-  const [selectedOrder, setSelectedOrder] = useState(null)
-  const [statusFilter, setStatusFilter] = useState('all')
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  const [orderBy, setOrderBy] = useState("created_at");
+  const [order, setOrder] = useState("desc");
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("all");
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
 
   // Filter orders based on status
-  const filteredOrders = orders.filter(order => 
-    statusFilter === 'all' ? true : order.status === statusFilter
-  )
+  const filteredOrders = orders.filter((order) =>
+    statusFilter === "all" ? true : order.status === statusFilter
+  );
 
   useEffect(() => {
     const checkAdmin = async () => {
       try {
         if (!user) {
-          setError('Please sign in to access the admin panel')
-          navigate('/')
-          return
+          setError("Please sign in to access the admin panel");
+          navigate("/");
+          return;
         }
 
         if (!isAdmin(user)) {
-          setError('You do not have admin privileges')
-          navigate('/')
-          return
+          setError("You do not have admin privileges");
+          navigate("/");
+          return;
         }
 
-        fetchData()
+        fetchData();
       } catch (error) {
-        console.error('Auth error:', error)
-        setError('Authentication error: ' + error.message)
-        setLoading(false)
+        console.error("Auth error:", error);
+        setError("Authentication error: " + error.message);
+        setLoading(false);
       }
-    }
+    };
 
-    checkAdmin()
-  }, [navigate, user])
+    checkAdmin();
+  }, [navigate, user]);
 
   const fetchData = async () => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       const { data: ordersData, error: ordersError } = await supabase
-        .from('orders')
-        .select(`
+        .from("orders")
+        .select(
+          `
           *,
           user_profiles (
             student_name,
@@ -679,129 +762,142 @@ function AdminOrders() {
             parent_name,
             parent_email
           )
-        `)
-        .order('created_at', { ascending: false })
+        `
+        )
+        .order("created_at", { ascending: false });
 
       if (ordersError) {
-        console.error('Orders fetch error:', ordersError)
-        throw ordersError
+        console.error("Orders fetch error:", ordersError);
+        throw ordersError;
       }
 
-      console.log('Raw orders data:', ordersData)
+      console.log("Raw orders data:", ordersData);
 
       // Format the joined data
-      let formattedOrders = ordersData.map(order => ({
+      let formattedOrders = ordersData.map((order) => ({
         ...order,
-        student_name: order.user_profiles?.student_name || 'N/A',
-        class_name: order.user_profiles 
-          ? (order.user_profiles.student_class === 'NA' 
-              ? 'Staff' 
-              : `${order.user_profiles.student_class}-${order.user_profiles.student_section}`)
-          : 'N/A',
-        gems_id_last_six: order.user_profiles?.gems_id_last_six || 'N/A'
-      }))
+        student_name: order.user_profiles?.student_name || "N/A",
+        class_name: order.user_profiles
+          ? order.user_profiles.student_class === "NA"
+            ? "Staff"
+            : `${order.user_profiles.student_class}-${order.user_profiles.student_section}`
+          : "N/A",
+        gems_id_last_six: order.user_profiles?.gems_id_last_six || "N/A",
+      }));
 
       // Sort the data
       formattedOrders.sort((a, b) => {
-        let comparison = 0
-        
+        let comparison = 0;
+
         switch (orderBy) {
-          case 'student_name':
-            comparison = a.student_name.localeCompare(b.student_name)
-            break
-          case 'class_name':
-            comparison = a.class_name.localeCompare(b.class_name)
-            break
-          case 'gems_id_last_six':
-            comparison = a.gems_id_last_six.localeCompare(b.gems_id_last_six)
-            break
-          case 'total_amount':
-            comparison = a.total_amount - b.total_amount
-            break
-          case 'status':
-            comparison = STATUS_ORDER[a.status] - STATUS_ORDER[b.status]
-            break
-          case 'created_at':
-            comparison = new Date(a.created_at) - new Date(b.created_at)
-            break
+          case "student_name":
+            comparison = a.student_name.localeCompare(b.student_name);
+            break;
+          case "class_name":
+            comparison = a.class_name.localeCompare(b.class_name);
+            break;
+          case "gems_id_last_six":
+            comparison = a.gems_id_last_six.localeCompare(b.gems_id_last_six);
+            break;
+          case "total_amount":
+            comparison = a.total_amount - b.total_amount;
+            break;
+          case "status":
+            comparison = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
+            break;
+          case "created_at":
+            comparison = new Date(a.created_at) - new Date(b.created_at);
+            break;
           default:
-            comparison = 0
+            comparison = 0;
         }
 
-        return order === 'desc' ? -comparison : comparison
-      })
+        return order === "desc" ? -comparison : comparison;
+      });
 
-      setOrders(formattedOrders)
+      setOrders(formattedOrders);
     } catch (error) {
-      console.error('Error fetching data:', error)
-      setError('Error loading data: ' + error.message)
+      console.error("Error fetching data:", error);
+      setError("Error loading data: " + error.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       const updateData = {
         status: newStatus,
-        ...(newStatus === 'delivered' ? { delivered_at: new Date().toISOString() } : {})
+        ...(newStatus === "delivered"
+          ? { delivered_at: new Date().toISOString() }
+          : {}),
       };
 
       const { error } = await supabase
-        .from('orders')
+        .from("orders")
         .update(updateData)
-        .eq('id', orderId);
+        .eq("id", orderId);
 
       if (error) throw error;
 
       // Update local state
-      setOrders(orders.map(order => 
-        order.id === orderId 
-          ? { ...order, status: newStatus, ...(newStatus === 'delivered' ? { delivered_at: new Date().toISOString() } : {}) }
-          : order
-      ));
+      setOrders(
+        orders.map((order) =>
+          order.id === orderId
+            ? {
+                ...order,
+                status: newStatus,
+                ...(newStatus === "delivered"
+                  ? { delivered_at: new Date().toISOString() }
+                  : {}),
+              }
+            : order
+        )
+      );
 
       setSnackbar({
         open: true,
-        message: 'Order status updated successfully',
-        severity: 'success'
+        message: "Order status updated successfully",
+        severity: "success",
       });
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error("Error updating status:", error);
       setSnackbar({
         open: true,
-        message: 'Failed to update order status: ' + error.message,
-        severity: 'error'
+        message: "Failed to update order status: " + error.message,
+        severity: "error",
       });
     }
-  }
+  };
 
   const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false })
-  }
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === 'asc'
-    setOrder(isAsc ? 'desc' : 'asc')
-    setOrderBy(property)
-    fetchData()
-  }
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+    fetchData();
+  };
 
   const createSortHandler = (property) => () => {
-    handleRequestSort(property)
-  }
+    handleRequestSort(property);
+  };
 
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    
+    const printWindow = window.open("", "_blank");
+
     // Create a simplified version of the table for printing
-    const table = document.getElementById('orders-table');
+    const table = document.getElementById("orders-table");
     const printTable = table.cloneNode(true);
-    
+
     // Remove sorting arrows and no-print elements
-    printTable.querySelectorAll('.MuiTableSortLabel-icon').forEach(el => el.remove());
-    printTable.querySelectorAll('.no-print').forEach(el => el.remove());
-    
+    printTable
+      .querySelectorAll(".MuiTableSortLabel-icon")
+      .forEach((el) => el.remove());
+    printTable.querySelectorAll(".no-print").forEach((el) => el.remove());
+
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -860,12 +956,12 @@ function AdminOrders() {
           </style>
         </head>
         <body>
-          <h2>Orders Report - ${new Date().toLocaleDateString('en-GB')}</h2>
+          <h2>Orders Report - ${new Date().toLocaleDateString("en-GB")}</h2>
           ${printTable.outerHTML}
         </body>
       </html>
     `);
-    
+
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();
@@ -874,10 +970,10 @@ function AdminOrders() {
 
   if (loading) {
     return (
-      <Container sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+      <Container sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
         <CircularProgress />
       </Container>
-    )
+    );
   }
 
   if (error) {
@@ -887,21 +983,31 @@ function AdminOrders() {
           {error}
         </Alert>
         {!user && (
-          <Button variant="contained" onClick={() => navigate('/login')}>
+          <Button variant="contained" onClick={() => navigate("/login")}>
             Sign In
           </Button>
         )}
       </Container>
-    )
+    );
   }
 
   return (
     <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
-      <Paper elevation={3} sx={{ 
-        mt: { xs: 4, sm: 8 }, 
-        p: { xs: 2, sm: 4 }
-      }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+      <Paper
+        elevation={3}
+        sx={{
+          mt: { xs: 4, sm: 8 },
+          p: { xs: 2, sm: 4 },
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 4,
+          }}
+        >
           <Typography variant="h4">Manage Orders</Typography>
           <Box>
             <Button
@@ -922,36 +1028,41 @@ function AdminOrders() {
           </Box>
         </Box>
 
-        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
 
-        <Box sx={{ mb: 3, mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box
+          sx={{ mb: 3, mt: 2, display: "flex", alignItems: "center", gap: 2 }}
+        >
           <Typography variant="body1">Filter by status:</Typography>
           <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             size="small"
-            sx={{ 
+            sx={{
               minWidth: 120,
-              '& .MuiSelect-select': {
+              "& .MuiSelect-select": {
                 py: 0.5,
-                bgcolor: statusFilter !== 'all' ? getStatusBgColor(statusFilter) : 'transparent',
-              }
+                bgcolor:
+                  statusFilter !== "all"
+                    ? getStatusBgColor(statusFilter)
+                    : "transparent",
+              },
             }}
-            renderValue={(value) => (
-              value === 'all' ? (
+            renderValue={(value) =>
+              value === "all" ? (
                 <Typography>All Orders</Typography>
               ) : (
                 <StatusDisplay status={value} />
               )
-            )}
+            }
           >
             <MenuItem value="all">All Orders</MenuItem>
             {ORDER_STATUSES.map((status) => (
-              <MenuItem 
-                key={status} 
-                value={status}
-                sx={{ p: 0 }}
-              >
+              <MenuItem key={status} value={status} sx={{ p: 0 }}>
                 <StatusMenuItem status={status} />
               </MenuItem>
             ))}
@@ -967,36 +1078,36 @@ function AdminOrders() {
               <TableRow>
                 <TableCell>
                   <TableSortLabel
-                    active={orderBy === 'id'}
-                    direction={orderBy === 'id' ? order : 'asc'}
-                    onClick={createSortHandler('id')}
+                    active={orderBy === "id"}
+                    direction={orderBy === "id" ? order : "asc"}
+                    onClick={createSortHandler("id")}
                   >
                     Order ID
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>
                   <TableSortLabel
-                    active={orderBy === 'student_name'}
-                    direction={orderBy === 'student_name' ? order : 'asc'}
-                    onClick={createSortHandler('student_name')}
+                    active={orderBy === "student_name"}
+                    direction={orderBy === "student_name" ? order : "asc"}
+                    onClick={createSortHandler("student_name")}
                   >
                     Student Name
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>
                   <TableSortLabel
-                    active={orderBy === 'class_name'}
-                    direction={orderBy === 'class_name' ? order : 'asc'}
-                    onClick={createSortHandler('class_name')}
+                    active={orderBy === "class_name"}
+                    direction={orderBy === "class_name" ? order : "asc"}
+                    onClick={createSortHandler("class_name")}
                   >
                     Class
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>
                   <TableSortLabel
-                    active={orderBy === 'gems_id_last_six'}
-                    direction={orderBy === 'gems_id_last_six' ? order : 'asc'}
-                    onClick={createSortHandler('gems_id_last_six')}
+                    active={orderBy === "gems_id_last_six"}
+                    direction={orderBy === "gems_id_last_six" ? order : "asc"}
+                    onClick={createSortHandler("gems_id_last_six")}
                   >
                     GEMS ID
                   </TableSortLabel>
@@ -1005,9 +1116,9 @@ function AdminOrders() {
                 <TableCell>Status</TableCell>
                 <TableCell>
                   <TableSortLabel
-                    active={orderBy === 'created_at'}
-                    direction={orderBy === 'created_at' ? order : 'asc'}
-                    onClick={createSortHandler('created_at')}
+                    active={orderBy === "created_at"}
+                    direction={orderBy === "created_at" ? order : "asc"}
+                    onClick={createSortHandler("created_at")}
                   >
                     Order Date
                   </TableSortLabel>
@@ -1026,42 +1137,45 @@ function AdminOrders() {
                   <TableCell>AED {order.total_amount}</TableCell>
                   <TableCell>
                     <div className={`status-cell status-${order.status}`}>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      {order.status.charAt(0).toUpperCase() +
+                        order.status.slice(1)}
                     </div>
                   </TableCell>
-                  <TableCell>{new Date(order.created_at).toLocaleDateString('en-GB')}</TableCell>
                   <TableCell>
-                    {order.delivered_at ? new Date(order.delivered_at).toLocaleDateString('en-GB') : '-'}
+                    {new Date(order.created_at).toLocaleDateString("en-GB")}
+                  </TableCell>
+                  <TableCell>
+                    {order.delivered_at
+                      ? new Date(order.delivered_at).toLocaleDateString("en-GB")
+                      : "-"}
                   </TableCell>
                   <TableCell className="no-print">
-                    <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Box sx={{ display: "flex", gap: 1 }}>
                       <Select
                         value={order.status}
-                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                        onChange={(e) =>
+                          handleStatusChange(order.id, e.target.value)
+                        }
                         size="small"
-                        sx={{ 
+                        sx={{
                           minWidth: 120,
-                          '& .MuiSelect-select': {
+                          "& .MuiSelect-select": {
                             py: 0.5,
                             bgcolor: getStatusBgColor(order.status),
-                          }
+                          },
                         }}
                         renderValue={(value) => (
                           <StatusDisplay status={value} />
                         )}
                       >
                         {ORDER_STATUSES.map((status) => (
-                          <MenuItem 
-                            key={status} 
-                            value={status}
-                            sx={{ p: 0 }}
-                          >
+                          <MenuItem key={status} value={status} sx={{ p: 0 }}>
                             <StatusMenuItem status={status} />
                           </MenuItem>
                         ))}
                       </Select>
-                      <IconButton 
-                        size="small" 
+                      <IconButton
+                        size="small"
                         onClick={() => setSelectedOrder(order)}
                         title="View Details"
                       >
@@ -1081,10 +1195,10 @@ function AdminOrders() {
           onClose={handleCloseSnackbar}
           message={snackbar.message}
         >
-          <Alert 
-            onClose={handleCloseSnackbar} 
+          <Alert
+            onClose={handleCloseSnackbar}
             severity={snackbar.severity}
-            sx={{ width: '100%' }}
+            sx={{ width: "100%" }}
           >
             {snackbar.message}
           </Alert>
@@ -1102,7 +1216,7 @@ function AdminOrders() {
         />
       </Paper>
     </Container>
-  )
+  );
 }
 
-export default AdminOrders
+export default AdminOrders;

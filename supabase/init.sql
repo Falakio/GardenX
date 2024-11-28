@@ -11,43 +11,18 @@ CREATE POLICY "Authenticated Users Can Upload" ON storage.objects FOR INSERT WIT
 CREATE POLICY "Owners Can Update and Delete" ON storage.objects USING (bucket_id = 'product-images' AND auth.uid() = owner);
 
 -- Create user_profiles table
-CREATE TABLE IF NOT EXISTS user_profiles (
+CREATE TABLE user_profiles (
     id UUID REFERENCES auth.users(id) PRIMARY KEY,
     parent_name TEXT NOT NULL,
     parent_email TEXT NOT NULL,
     student_name TEXT NOT NULL,
-    student_class TEXT NOT NULL CHECK (student_class IN ('KG1', 'KG2', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'NA')),
-    student_section CHAR(1) NOT NULL CHECK (student_section ~ '^[A-Z]$'),
+    student_class TEXT NOT NULL,
+    student_section TEXT NOT NULL,
     gems_id_last_six TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'parent',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     CONSTRAINT gems_id_unique UNIQUE (gems_id_last_six)
 );
-
--- Add role column to existing table
-ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'parent';
-
--- Update student_class check constraint if not exists
-DO $$ 
-BEGIN 
-    ALTER TABLE user_profiles DROP CONSTRAINT IF EXISTS user_profiles_student_class_check;
-    ALTER TABLE user_profiles ADD CONSTRAINT user_profiles_student_class_check 
-        CHECK (student_class IN ('KG1', 'KG2', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'NA'));
-EXCEPTION
-    WHEN others THEN null;
-END $$;
-
--- Update student_section type and constraint if not exists
-DO $$ 
-BEGIN 
-    ALTER TABLE user_profiles ALTER COLUMN student_section TYPE CHAR(1);
-    ALTER TABLE user_profiles DROP CONSTRAINT IF EXISTS user_profiles_student_section_check;
-    ALTER TABLE user_profiles ADD CONSTRAINT user_profiles_student_section_check 
-        CHECK (student_section ~ '^[A-Z]$');
-EXCEPTION
-    WHEN others THEN null;
-END $$;
 
 -- Create products table
 CREATE TABLE products (

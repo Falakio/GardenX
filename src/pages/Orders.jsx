@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -9,30 +9,30 @@ import {
   Paper,
   Chip,
   Grid,
-} from '@mui/material';
-import { useAuth } from '../contexts/AuthContext';
-import { getUserOrders } from '../services/supabase';
+} from "@mui/material";
+import { useAuth } from "../contexts/AuthContext";
+import { getUserOrders } from "../services/supabase";
 
 const getStatusColor = (status) => {
   switch (status.toLowerCase()) {
-    case 'pending':
-      return 'warning';
-    case 'confirmed':
-      return 'info';
-    case 'delivered':
-      return 'success';
+    case "pending":
+      return "warning";
+    case "confirmed":
+      return "info";
+    case "delivered":
+      return "success";
     default:
-      return 'default';
+      return "default";
   }
 };
 
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('en-GB', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(dateString).toLocaleDateString("en-GB", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
@@ -46,19 +46,19 @@ export default function Orders() {
   useEffect(() => {
     const loadOrders = async () => {
       if (!user) {
-        navigate('/login');
+        navigate("/login");
         return;
       }
 
       try {
         const { data, error } = await getUserOrders(user.id);
         if (error) {
-          console.error('Error details:', error);
+          console.error("Error details:", error);
           throw error;
         }
         setOrders(data || []);
       } catch (error) {
-        console.error('Error loading orders:', error);
+        console.error("Error loading orders:", error);
         setError(`Failed to load orders: ${error.message}`);
       } finally {
         setLoading(false);
@@ -70,7 +70,7 @@ export default function Orders() {
 
   if (loading) {
     return (
-      <Container sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+      <Container sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
         <CircularProgress />
       </Container>
     );
@@ -88,7 +88,8 @@ export default function Orders() {
     return (
       <Container sx={{ mt: 4 }}>
         <Alert severity="info">
-          You haven't placed any orders yet. Visit our shop to place your first order!
+          You haven't placed any orders yet. Visit our shop to place your first
+          order!
         </Alert>
       </Container>
     );
@@ -104,12 +105,21 @@ export default function Orders() {
         {orders.map((order) => (
           <Grid item xs={12} key={order.id}>
             <Paper elevation={2} sx={{ p: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="h6" sx={{ fontSize: '1.2rem' }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 1,
+                }}
+              >
+                <Typography variant="h6" sx={{ fontSize: "1.2rem" }}>
                   Order #{order.id.slice(0, 8)}
                 </Typography>
                 <Chip
-                  label={order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                  label={
+                    order.status.charAt(0).toUpperCase() + order.status.slice(1)
+                  }
                   color={getStatusColor(order.status)}
                   variant="filled"
                   size="small"
@@ -121,17 +131,24 @@ export default function Orders() {
               </Typography>
 
               <Box>
-                <Typography variant="subtitle2" gutterBottom sx={{ fontSize: '1rem' }}>
+                <Typography
+                  variant="subtitle2"
+                  gutterBottom
+                  sx={{ fontSize: "1rem" }}
+                >
                   Items:
                 </Typography>
                 <Box sx={{ ml: 1 }}>
                   {order.items.map((item, index) => (
-                    <Box key={index} sx={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between',
-                      mb: 0.5,
-                      gap: 1
-                    }}>
+                    <Box
+                      key={index}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        mb: 0.5,
+                        gap: 1,
+                      }}
+                    >
                       <Typography variant="body1" sx={{ flex: 1, minWidth: 0 }}>
                         {item.name} × {item.quantity}
                       </Typography>
@@ -143,15 +160,20 @@ export default function Orders() {
                 </Box>
               </Box>
 
-              <Box sx={{ 
-                mt: 1, 
-                pt: 1, 
-                borderTop: '1px solid',
-                borderColor: 'divider',
-                display: 'flex', 
-                justifyContent: 'flex-end' 
-              }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
+              <Box
+                sx={{
+                  mt: 1,
+                  pt: 1,
+                  borderTop: "1px solid",
+                  borderColor: "divider",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 600, fontSize: "1.1rem" }}
+                >
                   Total: AED {order.total_amount.toFixed(2)}
                 </Typography>
               </Box>

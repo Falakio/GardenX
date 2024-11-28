@@ -226,7 +226,7 @@ function Navbar() {
 
           {/* Right Side Menu */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {(!user || (user && !isAdminUser)) && (
+            {user && (
               <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                 <IconButton
                   component={RouterLink}
