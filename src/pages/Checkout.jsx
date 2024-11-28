@@ -13,7 +13,6 @@ import { ArrowBack } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { createOrder, getUserProfile } from '../services/supabase';
-import ziinaService from '../services/ziinaService';
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -60,25 +59,31 @@ export default function Checkout() {
   }, [cart, loading, navigate]);
 
   const handleCheckout = async () => {
+    if (!user || !profile) return;
+
     setLoading(true);
     setError(null);
+
     try {
-      const response = await ziinaService.createPaymentRequest({
-        amount: total,
-        currency: 'AED',
-        customerEmail: user.email,
-        customerName: profile.full_name,
-        customerPhone: profile.phone,
-        orderId: `order-${Date.now()}`,
-        description: 'Purchase from Gems Garden',
-      });
-      if (response && response.url) {
-        window.location.href = response.url; // Redirect to Ziina checkout
-      } else {
-        setError('Failed to initiate payment.');
-      }
-    } catch (err) {
-      setError('An error occurred during checkout.');
+      const orderData = {
+        user_id: user.id,
+        total_amount: total,
+        items: cart.map(item => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price
+        }))
+      };
+
+      const { error } = await createOrder(orderData);
+      if (error) throw error;
+
+      clearCart();
+      navigate('/orders');
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -143,7 +148,7 @@ export default function Checkout() {
         </Alert>
       )}
 
-      {profile ? (
+      {profile && (
         <Paper elevation={3} sx={{ 
           mt: { xs: 4, sm: 8 }, 
           p: { xs: 2, sm: 4 }
@@ -151,9 +156,11 @@ export default function Checkout() {
           <Typography variant="h6" gutterBottom>
             Order Summary
           </Typography>
+          
           <Typography>Student: {profile.student_name}</Typography>
           <Typography>Class: {profile.student_class}-{profile.student_section}</Typography>
           <Typography>GEMS ID: xxxxxx{profile.gems_id_last_six}</Typography>
+          
           <Typography variant="h6" sx={{ mt: 3 }}>
             Items:
           </Typography>
@@ -164,30 +171,33 @@ export default function Checkout() {
               </Typography>
             </Box>
           ))}
+          
           <Typography variant="h6" sx={{ mt: 3 }}>
             Total: AED {total.toFixed(2)}
           </Typography>
         </Paper>
-      ) : (
-        <CircularProgress />
       )}
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {cart.length > 0 && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleCheckout}
-            disabled={loading}
-          >
-            {loading ? <CircularProgress size={24} /> : 'Proceed to Ziina Checkout'}
-          </Button>
-        )}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleCheckout}
+          disabled={loading || cart.length === 0}
+          size="large"
+          fullWidth
+        >
+          {loading ? <CircularProgress size={24} color="inherit" /> : 'Place Order'}
+        </Button>
+
         <Button
           variant="outlined"
           onClick={() => navigate('/cart')}
+          startIcon={<ArrowBack />}
+          size="large"
+          fullWidth
         >
-          Back to Cart
+          Return to Cart
         </Button>
       </Box>
     </Container>
