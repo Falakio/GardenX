@@ -59,7 +59,15 @@ export default function SignUpForm() {
       });
     }
 
-    setFormData(prev => ({ ...prev, [name]: value }));
+    // Handle studentSection input
+    if (name === 'studentSection') {
+      // Only take the first character and convert to uppercase
+      const sectionValue = value.charAt(0).toUpperCase();
+      console.log('Section value:', sectionValue);
+      setFormData(prev => ({ ...prev, [name]: sectionValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleUserTypeChange = (event) => {
@@ -103,7 +111,14 @@ export default function SignUpForm() {
         setError('Please fill in all required fields.');
         return false;
       }
-      if (!/^[A-Z]$/.test(formData.studentSection)) {
+      // Updated section validation to be more permissive
+      const sectionValue = formData.studentSection?.trim().toUpperCase() || '';
+      console.log('Validating section:', {
+        original: formData.studentSection,
+        trimmed: sectionValue,
+        isValid: /^[A-Z]$/.test(sectionValue)
+      });
+      if (!sectionValue || !/^[A-Z]$/.test(sectionValue)) {
         setError('Section must be a single letter (A-Z).');
         return false;
       }
@@ -158,15 +173,14 @@ export default function SignUpForm() {
         }
 
         // Sign in the user after successful registration
-        const { error: signInError } = await signInWithEmail(formData.parentEmail, formData.password);
+        const { data: signInData, error: signInError } = await signInWithEmail(formData.parentEmail, formData.password);
         if (signInError) {
           throw new Error(`Sign in failed: ${signInError.message}`);
         }
 
         setSuccess(true);
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
+        // Redirect immediately after successful sign-in
+        navigate('/shop', { replace: true });
       } catch (error) {
         // If any error occurs after user creation but before successful profile creation,
         // attempt to delete the user to maintain consistency
@@ -205,7 +219,7 @@ export default function SignUpForm() {
 
       {success && (
         <Alert severity="success" sx={{ mb: 2 }}>
-          Sign up successful! Redirecting to login...
+          Sign up successful!
         </Alert>
       )}
 
@@ -265,14 +279,39 @@ export default function SignUpForm() {
             label="Section"
             name="studentSection"
             value={formData.studentSection}
-            onChange={handleChange}
+            onChange={(e) => {
+              const inputValue = e.target.value;
+              console.log('Raw section input:', inputValue);
+              // Only take the first character if there is input
+              const sectionValue = inputValue ? inputValue.charAt(0).toUpperCase() : '';
+              console.log('Processed section value:', sectionValue);
+              setFormData(prev => {
+                const newState = { ...prev, studentSection: sectionValue };
+                console.log('Updated form data:', newState);
+                return newState;
+              });
+            }}
+            onBlur={(e) => {
+              const currentValue = e.target.value;
+              if (currentValue && !/^[A-Z]$/.test(currentValue)) {
+                setError('Section must be a single letter (A-Z).');
+              } else {
+                setError('');
+              }
+            }}
             margin="normal"
             required
             inputProps={{ 
               maxLength: 1,
+              pattern: '[A-Za-z]',
               style: { textTransform: 'uppercase' }
             }}
-            helperText="Enter a single letter (A-Z)"
+            error={Boolean(formData.studentSection && !/^[A-Z]$/.test(formData.studentSection))}
+            helperText={
+              formData.studentSection && !/^[A-Z]$/.test(formData.studentSection)
+                ? "Section must be a single letter (A-Z)"
+                : "Enter a single letter (A-Z)"
+            }
           />
         </>
       )}

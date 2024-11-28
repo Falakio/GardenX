@@ -6,10 +6,6 @@ import CssBaseline from '@mui/material/CssBaseline'
 import App from './App'
 import theme from './theme'
 import './index.css'
-import { register } from './registerServiceWorker'
-
-// Register service worker for PWA support
-register();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
