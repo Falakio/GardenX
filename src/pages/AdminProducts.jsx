@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -21,109 +21,125 @@ import {
   Typography,
   CircularProgress,
   Alert,
-} from '@mui/material'
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material'
-import { useAuth } from '../contexts/AuthContext'
-import { supabase, uploadProductImage, deleteProductImage, isAdmin } from '../services/supabase'
-import StockStatus from '../components/StockStatus'
+  FormControl,
+  Select,
+  InputLabel,
+  MenuItem,
+} from "@mui/material";
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
+import { useAuth } from "../contexts/AuthContext";
+import {
+  supabase,
+  uploadProductImage,
+  deleteProductImage,
+  isAdmin,
+} from "../services/supabase";
+import StockStatus from "../components/StockStatus";
 
 function AdminProducts() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState(null)
-  const [editingProduct, setEditingProduct] = useState(null)
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [productForm, setProductForm] = useState({
-    name: '',
-    price: '',
-    stock_quantity: '',
-    image_url: '',
-  })
-  const [selectedFile, setSelectedFile] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState('')
-  const [uploadError, setUploadError] = useState('')
+    name: "",
+    price: "",
+    stock_quantity: "",
+    image_url: "",
+  });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [uploadError, setUploadError] = useState("");
 
   useEffect(() => {
     if (!user) {
-      navigate('/login')
-      return
+      navigate("/login");
+      return;
     }
 
     if (!isAdmin(user)) {
-      navigate('/')
-      return
+      navigate("/");
+      return;
     }
 
-    fetchProducts()
-  }, [navigate, user])
+    fetchProducts();
+  }, [navigate, user]);
 
   const fetchProducts = async () => {
     try {
       const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('name')
-      
-      if (error) throw error
-      setProducts(data || [])
-      setError(null)
+        .from("products")
+        .select("*")
+        .order("name");
+
+      if (error) throw error;
+      setProducts(data || []);
+      setError(null);
     } catch (error) {
-      console.error('Error fetching products:', error)
-      setError('Error loading products: ' + error.message)
-      setProducts([])
+      console.error("Error fetching products:", error);
+      setError("Error loading products: " + error.message);
+      setProducts([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
 
   const handleOpenDialog = (product = null) => {
     if (product) {
-      setEditingProduct(product)
+      setEditingProduct(product);
       setProductForm({
         name: product.name,
         price: product.price.toString(),
         stock_quantity: product.stock_quantity.toString(),
-        image_url: product.image_url || '',
-      })
-      setPreviewUrl(product.image_url || '')
+        image_url: product.image_url || "",
+        category: product.category || "", // Add category field
+      });
+      setPreviewUrl(product.image_url || "");
     } else {
-      setEditingProduct(null)
+      setEditingProduct(null);
       setProductForm({
-        name: '',
-        price: '',
-        stock_quantity: '',
-        image_url: '',
-      })
-      setPreviewUrl('')
+        name: "",
+        price: "",
+        stock_quantity: "",
+        image_url: "",
+        category: "", // Add category field
+      });
     }
-    setSelectedFile(null)
-    setUploadError('')
-    setDialogOpen(true)
-  }
+    setDialogOpen(true);
+  };
 
   const handleCloseDialog = () => {
-    setDialogOpen(false)
-    setEditingProduct(null)
-    setSelectedFile(null)
-    setPreviewUrl('')
-    setUploadError('')
-  }
+    setDialogOpen(false);
+    setEditingProduct(null);
+    setSelectedFile(null);
+    setPreviewUrl("");
+    setUploadError("");
+  };
 
   const handleFormChange = (e) => {
-    setProductForm({ ...productForm, [e.target.name]: e.target.value })
-  }
+    setProductForm({ ...productForm, [e.target.name]: e.target.value });
+  };
 
   const handleFileSelect = (event) => {
-    const file = event.target.files[0]
+    const file = event.target.files[0];
     if (file) {
-      setSelectedFile(file)
-      setPreviewUrl(URL.createObjectURL(file))
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
     }
-  }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -132,88 +148,92 @@ function AdminProducts() {
         price: parseFloat(productForm.price),
         stock_quantity: parseInt(productForm.stock_quantity),
         image_url: productForm.image_url,
-      }
+        category: productForm.category,
+      };
 
-      let productId = editingProduct?.id
+      let productId = editingProduct?.id;
 
       if (editingProduct) {
         const { error } = await supabase
-          .from('products')
+          .from("products")
           .update(productData)
-          .eq('id', editingProduct.id)
-        if (error) throw error
+          .eq("id", editingProduct.id);
+        if (error) throw error;
       } else {
         const { data, error } = await supabase
-          .from('products')
+          .from("products")
           .insert([productData])
-          .select()
-        if (error) throw error
-        productId = data[0].id
+          .select();
+        if (error) throw error;
+        productId = data[0].id;
       }
 
       // Handle image upload if a new file is selected
       if (selectedFile) {
-        const { publicUrl, error: uploadError } = await uploadProductImage(selectedFile, productId)
+        const { publicUrl, error: uploadError } = await uploadProductImage(
+          selectedFile,
+          productId
+        );
         if (uploadError) {
-          setUploadError('Failed to upload image. Please try again.')
-          return
+          setUploadError("Failed to upload image. Please try again.");
+          return;
         }
-        
+
         // Update product with new image URL
         const { error: updateError } = await supabase
-          .from('products')
+          .from("products")
           .update({ image_url: publicUrl })
-          .eq('id', productId)
-          
-        if (updateError) throw updateError
+          .eq("id", productId);
+
+        if (updateError) throw updateError;
       }
 
-      handleCloseDialog()
-      fetchProducts()
+      handleCloseDialog();
+      fetchProducts();
     } catch (error) {
-      console.error('Error saving product:', error)
-      setUploadError('Failed to save product. Please try again.')
+      console.error("Error saving product:", error);
+      setUploadError("Failed to save product. Please try again.");
     }
-  }
+  };
 
   const handleDeleteClick = (product) => {
-    setSelectedProduct(product)
-    setDeleteDialogOpen(true)
-  }
+    setSelectedProduct(product);
+    setDeleteDialogOpen(true);
+  };
 
   const handleDeleteCancel = () => {
-    setDeleteDialogOpen(false)
-    setSelectedProduct(null)
-  }
+    setDeleteDialogOpen(false);
+    setSelectedProduct(null);
+  };
 
   const handleDeleteConfirm = async () => {
     try {
       if (selectedProduct.image_url) {
-        const fileName = selectedProduct.image_url.split('/').pop()
-        await deleteProductImage(fileName)
+        const fileName = selectedProduct.image_url.split("/").pop();
+        await deleteProductImage(fileName);
       }
 
       const { error } = await supabase
-        .from('products')
+        .from("products")
         .delete()
-        .eq('id', selectedProduct.id)
-      
-      if (error) throw error
+        .eq("id", selectedProduct.id);
 
-      setDeleteDialogOpen(false)
-      setSelectedProduct(null)
-      fetchProducts()
+      if (error) throw error;
+
+      setDeleteDialogOpen(false);
+      setSelectedProduct(null);
+      fetchProducts();
     } catch (error) {
-      console.error('Error deleting product:', error)
+      console.error("Error deleting product:", error);
     }
-  }
+  };
 
   if (loading) {
     return (
-      <Container sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+      <Container sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
         <CircularProgress />
       </Container>
-    )
+    );
   }
 
   if (error) {
@@ -223,26 +243,31 @@ function AdminProducts() {
           {error}
         </Alert>
         {!user && (
-          <Button variant="contained" onClick={() => navigate('/login')}>
+          <Button variant="contained" onClick={() => navigate("/login")}>
             Sign In
           </Button>
         )}
       </Container>
-    )
+    );
   }
 
   return (
     <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
-      <Paper elevation={3} sx={{ 
-        mt: { xs: 4, sm: 8 }, 
-        p: { xs: 2, sm: 4 }
-      }}>
-        <Box sx={{ 
-          mb: 4, 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
+      <Paper
+        elevation={3}
+        sx={{
+          mt: { xs: 4, sm: 8 },
+          p: { xs: 2, sm: 4 },
+        }}
+      >
+        <Box
+          sx={{
+            mb: 4,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Typography variant="h4">Manage Products</Typography>
           <Button
             variant="contained"
@@ -259,9 +284,10 @@ function AdminProducts() {
             <TableHead>
               <TableRow>
                 <TableCell>Name</TableCell>
-                <TableCell align="right">Price</TableCell>
-                <TableCell align="right">Stock</TableCell>
-                <TableCell align="right">Status</TableCell>
+                <TableCell>Price</TableCell>
+                <TableCell>Stock</TableCell>
+                <TableCell>Category</TableCell>
+                <TableCell>Status</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -269,17 +295,20 @@ function AdminProducts() {
               {products.map((product) => (
                 <TableRow key={product.id}>
                   <TableCell>{product.name}</TableCell>
-                  <TableCell align="right">{product.price.toFixed(2)}</TableCell>
-                  <TableCell align="right">{product.stock_quantity}</TableCell>
-                  <TableCell align="right">
+                  <TableCell>{product.price.toFixed(2)}</TableCell>
+                  <TableCell>{product.stock_quantity}</TableCell>
+                  <TableCell>
+                    {capitalizeFirstLetter(product.category)}
+                  </TableCell>
+                  <TableCell>
                     <StockStatus quantity={product.stock_quantity} />
                   </TableCell>
                   <TableCell>
-                    <Box sx={{ display: 'flex' }}>
+                    <Box sx={{ display: "flex" }}>
                       <IconButton onClick={() => handleOpenDialog(product)}>
                         <EditIcon />
                       </IconButton>
-                      <IconButton 
+                      <IconButton
                         onClick={() => handleDeleteClick(product)}
                         color="error"
                       >
@@ -295,12 +324,14 @@ function AdminProducts() {
 
         {/* Product Dialog */}
         <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-          <DialogTitle>{editingProduct ? 'Edit Product' : 'New Product'}</DialogTitle>
+          <DialogTitle>
+            {editingProduct ? "Edit Product" : "New Product"}
+          </DialogTitle>
           <DialogContent>
             <DialogContentText>
-              {editingProduct 
-                ? 'Edit the product details below.' 
-                : 'Fill in the product details below to create a new product.'}
+              {editingProduct
+                ? "Edit the product details below."
+                : "Fill in the product details below to create a new product."}
             </DialogContentText>
 
             {uploadError && (
@@ -339,18 +370,32 @@ function AdminProducts() {
               fullWidth
               required
             />
+            <FormControl fullWidth margin="dense">
+              <InputLabel>Category</InputLabel>
+              <Select
+                value={productForm.category}
+                onChange={(e) =>
+                  setProductForm({ ...productForm, category: e.target.value })
+                }
+              >
+                <MenuItem value="Vegetable">Vegetable</MenuItem>
+                <MenuItem value="Plant">Plant</MenuItem>
+                <MenuItem value="Seed">Seed</MenuItem>
+                <MenuItem value="Misc">Misc</MenuItem>
+              </Select>
+            </FormControl>
 
             <Box sx={{ mt: 2, mb: 1 }}>
               <input
                 accept="image/*"
-                style={{ display: 'none' }}
+                style={{ display: "none" }}
                 id="product-image"
                 type="file"
                 onChange={handleFileSelect}
               />
               <label htmlFor="product-image">
                 <Button variant="outlined" component="span">
-                  {editingProduct ? 'Change Image' : 'Upload Image'}
+                  {editingProduct ? "Change Image" : "Upload Image"}
                 </Button>
               </label>
               {previewUrl && (
@@ -358,7 +403,11 @@ function AdminProducts() {
                   <img
                     src={previewUrl}
                     alt="Product preview"
-                    style={{ maxWidth: '100%', maxHeight: '200px', objectFit: 'contain' }}
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "200px",
+                      objectFit: "contain",
+                    }}
                   />
                 </Box>
               )}
@@ -367,7 +416,7 @@ function AdminProducts() {
           <DialogActions>
             <Button onClick={handleCloseDialog}>Cancel</Button>
             <Button onClick={handleSubmit} variant="contained" color="primary">
-              {editingProduct ? 'Update' : 'Create'}
+              {editingProduct ? "Update" : "Create"}
             </Button>
           </DialogActions>
         </Dialog>
@@ -377,7 +426,8 @@ function AdminProducts() {
           <DialogTitle>Confirm Delete</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Are you sure you want to delete {selectedProduct?.name}? This action cannot be undone.
+              Are you sure you want to delete {selectedProduct?.name}? This
+              action cannot be undone.
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -389,7 +439,7 @@ function AdminProducts() {
         </Dialog>
       </Paper>
     </Container>
-  )
+  );
 }
 
-export default AdminProducts
+export default AdminProducts;

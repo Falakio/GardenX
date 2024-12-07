@@ -21,9 +21,13 @@ const getStatusColor = (status) => {
       return "info";
     case "delivered":
       return "success";
-    default:
-      return "default";
+    case "cancelled":
+      return "error";
   }
+};
+
+const capitalizeFirstLetter = (string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
 const formatDate = (dateString) => {
@@ -58,8 +62,8 @@ export default function Orders() {
         }
         setOrders(data || []);
       } catch (error) {
-        console.error("Error loading orders:", error);
-        setError(`Failed to load orders: ${error.message}`);
+        console.error("Failed to load orders:", error);
+        setError("Failed to load orders");
       } finally {
         setLoading(false);
       }
@@ -70,117 +74,71 @@ export default function Orders() {
 
   if (loading) {
     return (
-      <Container sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
+      <Box display="flex" justifyContent="center" mt={4}>
         <CircularProgress />
-      </Container>
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <Container sx={{ mt: 4 }}>
-        <Alert severity="error">{error}</Alert>
-      </Container>
-    );
-  }
-
-  if (orders.length === 0) {
-    return (
-      <Container sx={{ mt: 4 }}>
-        <Alert severity="info">
-          You haven't placed any orders yet. Visit our shop to place your first
-          order!
+      <Container maxWidth="sm">
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error}
         </Alert>
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="sm" sx={{ px: { xs: 2, sm: 3 } }}>
-      <Typography variant="h4" sx={{ mb: 2 }}>
+    <Container maxWidth="md" sx={{ px: { xs: 2, sm: 3 } }}>
+      <Typography variant="h4" gutterBottom>
         My Orders
       </Typography>
-
-      <Grid container spacing={2}>
-        {orders.map((order) => (
-          <Grid item xs={12} key={order.id}>
-            <Paper elevation={2} sx={{ p: 2 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 1,
-                }}
-              >
-                <Typography variant="h6" sx={{ fontSize: "1.2rem" }}>
-                  Order #{order.id.slice(0, 8)}
+      {orders.length === 0 ? (
+        <Typography>No orders found.</Typography>
+      ) : (
+        <Grid container spacing={3}>
+          {orders.map((order) => (
+            <Grid item xs={12} key={order.id}>
+              <Paper sx={{ p: 2 }}>
+                <Box display="flex" justifyContent="space-between">
+                  <Typography variant="h6" gutterBottom>
+                    Order #{order.id.substring(0, 8)}
+                  </Typography>
+                  <Chip
+                    label={capitalizeFirstLetter(order.status)}
+                    color={getStatusColor(order.status)}
+                    sx={{ mr: 2 }}
+                  />
+                </Box>
+                <Typography variant="body2" color="textSecondary">
+                  Placed on {formatDate(order.created_at)}
                 </Typography>
-                <Chip
-                  label={
-                    order.status.charAt(0).toUpperCase() + order.status.slice(1)
-                  }
-                  color={getStatusColor(order.status)}
-                  variant="filled"
-                  size="small"
-                />
-              </Box>
-
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
-                Placed on {formatDate(order.created_at)}
-              </Typography>
-
-              <Box>
-                <Typography
-                  variant="subtitle2"
-                  gutterBottom
-                  sx={{ fontSize: "1rem" }}
-                >
-                  Items:
-                </Typography>
-                <Box sx={{ ml: 1 }}>
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle1">Items:</Typography>
                   {order.items.map((item, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        mb: 0.5,
-                        gap: 1,
-                      }}
-                    >
-                      <Typography variant="body1" sx={{ flex: 1, minWidth: 0 }}>
-                        {item.name} × {item.quantity}
-                      </Typography>
-                      <Typography variant="body1" sx={{ flexShrink: 0 }}>
-                        AED {(item.price * item.quantity).toFixed(2)}
-                      </Typography>
-                    </Box>
+                    <Typography key={index} variant="body2">
+                      {item.name} - {item.quantity} x {item.price} AED ={" "}
+                      {item.quantity * item.price} AED
+                    </Typography>
                   ))}
                 </Box>
-              </Box>
-
-              <Box
-                sx={{
-                  mt: 1,
-                  pt: 1,
-                  borderTop: "1px solid",
-                  borderColor: "divider",
-                  display: "flex",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 600, fontSize: "1.1rem" }}
-                >
-                  Total: AED {order.total_amount.toFixed(2)}
-                </Typography>
-              </Box>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="h6">
+                    Total Price:{" "}
+                    {order.items.reduce(
+                      (total, item) => total + item.quantity * item.price,
+                      0
+                    )}{" "}
+                    AED
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Container>
   );
 }

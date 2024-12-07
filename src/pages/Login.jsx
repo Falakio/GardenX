@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -10,17 +10,25 @@ import {
   Tab,
   Tabs,
   Alert,
-} from '@mui/material'
-import { signInWithEmail } from '../services/supabase'
-import SignUpForm from '../components/SignUpForm'
+} from "@mui/material";
+import { signInWithEmail } from "../services/supabase";
+import SignUpForm from "../components/SignUpForm";
+import { useAuth } from "../contexts/AuthContext";
 
 function Login() {
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [tab, setTab] = useState(0) // 0 for sign in, 1 for sign up
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState(0); // 0 for sign in, 1 for sign up
+
+  useEffect(() => {
+    if (user) {
+      navigate("/shop");
+    }
+  }, [user, navigate]);
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
@@ -32,9 +40,9 @@ function Login() {
     try {
       const { data, error } = await signInWithEmail(email, password);
       if (error) throw error;
-      navigate('/shop');
+      navigate("/shop");
     } catch (err) {
-      console.error('Sign in error:', err);
+      console.error("Sign in error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -43,10 +51,7 @@ function Login() {
 
   return (
     <Container maxWidth="sm" sx={{ px: { xs: 2, sm: 3 } }}>
-      <Paper elevation={3} sx={{ 
-        mt: { xs: 4, sm: 8 }, 
-        p: { xs: 2, sm: 4 }
-      }}>
+      <Paper elevation={3} sx={{ mt: { xs: 4, sm: 8 }, p: { xs: 2, sm: 4 } }}>
         <Tabs
           value={tab}
           onChange={(e, newValue) => setTab(newValue)}
@@ -56,21 +61,25 @@ function Login() {
           <Tab label="Sign In" />
           <Tab label="Sign Up" />
         </Tabs>
-
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
-
         {tab === 0 ? (
-          // Sign In Form
           <>
             <Typography variant="h4" component="h1" gutterBottom align="center">
               Sign In
             </Typography>
-
-            <Box component="form" onSubmit={(e) => { e.preventDefault(); handleEmailSignIn(email, password); }} noValidate sx={{ mt: 1 }}>
+            <Box
+              component="form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleEmailSignIn(email, password);
+              }}
+              noValidate
+              sx={{ mt: 1 }}
+            >
               <TextField
                 margin="normal"
                 required
@@ -101,7 +110,7 @@ function Login() {
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3 }}
+                sx={{ mt: 3, mb: 2 }}
                 disabled={loading}
               >
                 Sign In
@@ -109,12 +118,11 @@ function Login() {
             </Box>
           </>
         ) : (
-          // Sign Up Form
           <SignUpForm />
         )}
       </Paper>
     </Container>
-  )
+  );
 }
 
-export default Login
+export default Login;

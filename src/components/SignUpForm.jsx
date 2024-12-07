@@ -1,406 +1,298 @@
-import { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
-  Button,
   TextField,
-  MenuItem,
+  Button,
+  Radio,
+  RadioGroup,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
   Typography,
-  Alert,
-  CircularProgress,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Fade,
-} from '@mui/material';
-import { CheckCircleOutline, CancelOutlined } from '@mui/icons-material';
-import { signUpWithEmail, createUserProfile, signInWithEmail, deleteAuthUser, checkGemsIdExists } from '../services/supabase';
-import { useNavigate } from 'react-router-dom';
-
-const CLASSES = ['KG1', 'KG2', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+  Select,
+  MenuItem,
+  InputLabel,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { signUpWithEmail, createUserProfile } from "../services/supabase";
 
 export default function SignUpForm() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-  const [passwordRequirements, setPasswordRequirements] = useState({
-    length: false,
-    uppercase: false,
-    lowercase: false,
-    number: false,
-  });
   const [formData, setFormData] = useState({
-    password: '',
-    parentName: '',
-    parentEmail: '',
-    studentName: '',
-    studentClass: '',
-    studentSection: '',
-    gemsIdLastSix: '',
+    role: "parent",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    password: "",
+    details: {},
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    
-    if (name === 'password') {
-      // Check password requirements
-      setPasswordRequirements({
-        length: value.length >= 8,
-        uppercase: /[A-Z]/.test(value),
-        lowercase: /[a-z]/.test(value),
-        number: /\d/.test(value),
-      });
-    }
-    
-    // Convert section to uppercase
-    if (name === 'studentSection') {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value.toUpperCase()
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-
-  const PasswordRequirementsList = () => (
-    <List dense sx={{ mt: 1, bgcolor: 'background.paper' }}>
-      <ListItem>
-        <ListItemIcon sx={{ minWidth: 40 }}>
-          {passwordRequirements.length ? (
-            <CheckCircleOutline 
-              sx={{ 
-                bgcolor: 'white',
-                borderRadius: '50%',
-                color: 'success.main',
-              }} 
-            />
-          ) : (
-            <CancelOutlined 
-              sx={{ 
-                bgcolor: 'white',
-                borderRadius: '50%',
-                color: 'error.main',
-              }} 
-            />
-          )}
-        </ListItemIcon>
-        <ListItemText primary="At least 8 characters long" />
-      </ListItem>
-      <ListItem>
-        <ListItemIcon sx={{ minWidth: 40 }}>
-          {passwordRequirements.uppercase ? (
-            <CheckCircleOutline 
-              sx={{ 
-                bgcolor: 'white',
-                borderRadius: '50%',
-                color: 'success.main',
-              }} 
-            />
-          ) : (
-            <CancelOutlined 
-              sx={{ 
-                bgcolor: 'white',
-                borderRadius: '50%',
-                color: 'error.main',
-              }} 
-            />
-          )}
-        </ListItemIcon>
-        <ListItemText primary="One uppercase letter" />
-      </ListItem>
-      <ListItem>
-        <ListItemIcon sx={{ minWidth: 40 }}>
-          {passwordRequirements.lowercase ? (
-            <CheckCircleOutline 
-              sx={{ 
-                bgcolor: 'white',
-                borderRadius: '50%',
-                color: 'success.main',
-              }} 
-            />
-          ) : (
-            <CancelOutlined 
-              sx={{ 
-                bgcolor: 'white',
-                borderRadius: '50%',
-                color: 'error.main',
-              }} 
-            />
-          )}
-        </ListItemIcon>
-        <ListItemText primary="One lowercase letter" />
-      </ListItem>
-      <ListItem>
-        <ListItemIcon sx={{ minWidth: 40 }}>
-          {passwordRequirements.number ? (
-            <CheckCircleOutline 
-              sx={{ 
-                bgcolor: 'white',
-                borderRadius: '50%',
-                color: 'success.main',
-              }} 
-            />
-          ) : (
-            <CancelOutlined 
-              sx={{ 
-                bgcolor: 'white',
-                borderRadius: '50%',
-                color: 'error.main',
-              }} 
-            />
-          )}
-        </ListItemIcon>
-        <ListItemText primary="One number" />
-      </ListItem>
-    </List>
-  );
+  const [errors, setErrors] = useState({});
 
   const validateForm = () => {
-    if (!formData.password || !formData.parentName || 
-        !formData.parentEmail || !formData.studentName || !formData.studentClass || 
-        !formData.studentSection || !formData.gemsIdLastSix) {
-      setError('Please fill in all fields');
-      return false;
-    }
-    
-    if (formData.gemsIdLastSix.length !== 6 || !/^\d+$/.test(formData.gemsIdLastSix)) {
-      setError('GEMS ID must be exactly 6 digits');
-      return false;
+    const newErrors = {};
+
+    // Phone validation
+    if (!/^05\d{8}$/.test(formData.phone)) {
+      newErrors.phone = "Phone must be 10 digits starting with 05";
     }
 
-    if (!Object.values(passwordRequirements).every(Boolean)) {
-      setError('Password does not meet the requirements');
-      return false;
+    // Email validation
+    if (
+      ["staff"].includes(formData.role) &&
+      !formData.email.endsWith("@gemsedu.com")
+    ) {
+      newErrors.email = "Email must end with @gemsedu.com";
     }
 
-    if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(formData.parentEmail)) {
-      setError('Please enter a valid email address');
-      return false;
+    // Role-specific validations
+    if (formData.role === "parent") {
+      if (!/^[1-9]\d{5}$/.test(formData.details.student_gems_id)) {
+        newErrors.student_gems_id = "Must be 6 digits starting with non-zero";
+      }
+      if (!/^[A-Z]$/.test(formData.details.student_section)) {
+        newErrors.student_section = "Must be a single capital letter";
+      }
     }
 
-    // Validate section (single uppercase letter)
-    if (!/^[A-Z]$/.test(formData.studentSection)) {
-      setError('Section must be a single uppercase letter (A-Z)');
-      return false;
+    if (formData.role === "staff") {
+      if (!/^[1-9]\d{5}$/.test(formData.details.staff_gems_id)) {
+        newErrors.staff_gems_id = "Must be 6 digits starting with non-zero";
+      }
     }
 
-    return true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(false);
-
     if (!validateForm()) return;
 
-    setLoading(true);
     try {
-      // Check if GEMS ID already exists
-      const { exists, error: checkError } = await checkGemsIdExists(formData.gemsIdLastSix);
-      
-      if (checkError) throw checkError;
-      
-      if (exists) {
-        throw new Error('This GEMS ID is already registered in the system');
-      }
-
       // Sign up the user
-      const { data: signUpData, error: signUpError } = await signUpWithEmail(
-        formData.parentEmail,
+      const { data: authData, error: authError } = await signUpWithEmail(
+        formData.email,
         formData.password
       );
-
-      if (signUpError) {
-        console.error('Signup error:', signUpError);
-        throw signUpError;
-      }
+      if (authError) throw authError;
 
       // Create user profile
       const profileData = {
-        id: signUpData.user.id,
-        parent_name: formData.parentName,
-        parent_email: formData.parentEmail,
-        student_name: formData.studentName,
-        student_class: formData.studentClass,
-        student_section: formData.studentSection.toUpperCase(),
-        gems_id_last_six: formData.gemsIdLastSix,
+        id: authData.user.id,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        role: formData.role,
+        details: formData.details,
       };
 
       const { error: profileError } = await createUserProfile(profileData);
+      if (profileError) throw profileError;
 
-      if (profileError) {
-        // If profile creation fails, we should handle this error
-        console.error('Profile creation error:', profileError);
-        
-        // Attempt to clean up the auth user since profile creation failed
-        const { error: deleteError } = await deleteAuthUser(signUpData.user.id);
-        if (deleteError) {
-          console.error('Failed to delete auth user after profile creation failed:', deleteError);
-        }
-        
-        throw new Error('Failed to create user profile. Please try again.');
-      }
-
-      setSuccess(true);
-
-      // Sign in immediately after signup
-      const { error: signInError } = await signInWithEmail(formData.parentEmail, formData.password);
-      if (signInError) {
-        console.error('Sign in error:', signInError);
-        throw signInError;
-      }
-
-      navigate('/shop');
+      // Handle successful signup (e.g., redirect to shop)
+      console.log("User signed up and profile created successfully");
+      navigate("/shop");
     } catch (error) {
-      console.error('Error during sign up:', error);
-      setError(error.message || 'An error occurred during sign up');
-      setSuccess(false);
-    } finally {
-      setLoading(false);
+      console.error("Error:", error);
     }
   };
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "role") {
+      setFormData({
+        ...formData,
+        role: value,
+        details: {},
+      });
+    } else if (name.startsWith("details.")) {
+      setFormData({
+        ...formData,
+        details: {
+          ...formData.details,
+          [name.split(".")[1]]: value,
+        },
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
+  };
 
-  if (success) {
-    return (
-      <Box sx={{ mt: 2 }}>
-        <Alert severity="success">
-          Sign up successful! Please check your email to confirm your account. Redirecting to shop...
-        </Alert>
-      </Box>
-    );
-  }
+  const handleKeyPress = (e) => {
+    const charCode = e.which || e.keyCode;
+    const charStr = String.fromCharCode(charCode);
+    if (!/[a-zA-Z]/.test(charStr)) {
+      e.preventDefault();
+    }
+  };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{ maxWidth: 600, mx: "auto", p: 3 }}
+    >
+      <FormControl component="fieldset" margin="normal">
+        <FormLabel component="legend">Role</FormLabel>
+        <RadioGroup
+          row
+          name="role"
+          value={formData.role}
+          onChange={handleChange}
+          required
+        >
+          <FormControlLabel value="parent" control={<Radio />} label="Parent" />
+          <FormControlLabel value="staff" control={<Radio />} label="Staff" />
+          <FormControlLabel
+            value="visitor"
+            control={<Radio />}
+            label="Visitor"
+          />
+        </RadioGroup>
+      </FormControl>
+
+      <TextField
+        fullWidth
+        margin="normal"
+        required
+        label="First Name"
+        name="firstName"
+        value={formData.firstName}
+        onChange={handleChange}
+      />
+
+      <TextField
+        fullWidth
+        margin="normal"
+        required
+        label="Last Name"
+        name="lastName"
+        value={formData.lastName}
+        onChange={handleChange}
+      />
+
+      <TextField
+        fullWidth
+        margin="normal"
+        required
+        label="Email"
+        name="email"
+        type="email"
+        value={formData.email}
+        onChange={handleChange}
+        error={!!errors.email}
+        helperText={errors.email}
+      />
+
+      <TextField
+        fullWidth
+        margin="normal"
+        required
+        label="Phone"
+        name="phone"
+        value={formData.phone}
+        onChange={handleChange}
+        error={!!errors.phone}
+        helperText={errors.phone || "Format: 0512345678"}
+      />
+
+      {formData.role === "parent" && (
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            Student Information
+          </Typography>
+          <TextField
+            fullWidth
+            margin="normal"
+            required
+            label="Student First Name"
+            name="details.student_first_name"
+            onChange={handleChange}
+          />
+          <TextField
+            fullWidth
+            margin="normal"
+            required
+            label="Student Last Name"
+            name="details.student_last_name"
+            onChange={handleChange}
+          />
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel>Class</InputLabel>
+            <Select
+              value={formData.details.student_class || ""}
+              name="details.student_class"
+              onChange={handleChange}
+              label="Class"
+            >
+              <MenuItem value="KG1">KG1</MenuItem>
+              <MenuItem value="KG2">KG2</MenuItem>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((grade) => (
+                <MenuItem key={grade} value={grade.toString()}>
+                  {grade}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            fullWidth
+            margin="normal"
+            required
+            label="Student Section"
+            name="details.student_section"
+            onChange={handleChange}
+            onInput={(e) => (e.target.value = e.target.value.toUpperCase())}
+            onKeyPress={handleKeyPress}
+            error={!!errors.student_section}
+            helperText={errors.student_section || "Single capital letter"}
+            inputProps={{ maxLength: 1 }}
+          />
+          <TextField
+            fullWidth
+            margin="normal"
+            required
+            label="Student GEMS ID"
+            name="details.student_gems_id"
+            onChange={handleChange}
+            error={!!errors.student_gems_id}
+            helperText={errors.student_gems_id}
+            inputProps={{ maxLength: 6 }}
+          />
+        </Box>
       )}
 
-      <Typography variant="h6" gutterBottom>
-        Parent Information
-      </Typography>
-      
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        label="Parent Name"
-        name="parentName"
-        value={formData.parentName}
-        onChange={handleChange}
-      />
-
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        label="Parent Email"
-        name="parentEmail"
-        type="email"
-        value={formData.parentEmail}
-        onChange={handleChange}
-        helperText="This email will be used for signing in"
-      />
-
-      <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-        Student Information
-      </Typography>
-
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        label="Student Name"
-        name="studentName"
-        value={formData.studentName}
-        onChange={handleChange}
-      />
-
-      <Box sx={{ display: 'flex', gap: 2 }}>
+      {formData.role === "staff" && (
         <TextField
+          fullWidth
           margin="normal"
           required
-          select
-          fullWidth
-          label="Class"
-          name="studentClass"
-          value={formData.studentClass}
+          label="Staff GEMS ID"
+          name="details.staff_gems_id"
           onChange={handleChange}
-        >
-          {CLASSES.map((cls) => (
-            <MenuItem key={cls} value={cls}>
-              {cls}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          label="Section"
-          name="studentSection"
-          value={formData.studentSection}
-          onChange={handleChange}
-          inputProps={{ 
-            maxLength: 1,
-            style: { textTransform: 'uppercase' }
-          }}
-          helperText="Enter a single letter (A-Z)"
+          error={!!errors.staff_gems_id}
+          helperText={errors.staff_gems_id}
+          inputProps={{ maxLength: 6 }}
         />
-      </Box>
+      )}
 
       <TextField
+        fullWidth
         margin="normal"
         required
-        fullWidth
-        label="GEMS ID (Last 6 digits)"
-        name="gemsIdLastSix"
-        value={formData.gemsIdLastSix}
-        onChange={handleChange}
-        inputProps={{ maxLength: 6, pattern: '[0-9]*' }}
-        helperText="Enter the last 6 digits of your ward's GEMS ID"
-      />
-
-      <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-        Account Information
-      </Typography>
-
-      <TextField
-        margin="normal"
-        required
-        fullWidth
         label="Password"
         name="password"
         type="password"
         value={formData.password}
         onChange={handleChange}
-        error={formData.password.length > 0 && !Object.values(passwordRequirements).every(Boolean)}
       />
-      <PasswordRequirementsList />
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        sx={{ mt: 3, mb: 2 }}
-        disabled={loading}
-      >
+
+      <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
         Sign Up
       </Button>
     </Box>
