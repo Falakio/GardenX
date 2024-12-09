@@ -707,7 +707,11 @@ export default function AdminOrders() {
                     <MenuItem value="cancelled">Cancelled</MenuItem>
                   </Select>
                 </TableCell>
-                <TableCell>{order.delivered_at.substring(0, 10)}</TableCell>
+                <TableCell>
+                  {order.delivered_at
+                    ? order.delivered_at.substring(0, 10)
+                    : "⠀⠀⠀-"}
+                </TableCell>
                 <TableCell>
                   <IconButton onClick={() => handleViewMore(order)}>
                     <Visibility />
