@@ -348,7 +348,7 @@ function EarningsReportDialog({ open, onClose, orders }) {
       <DialogTitle>Earnings Report</DialogTitle>
 
       <DialogContent>
-        <Grid container spacing={2} sx={{mt: 1}}>
+        <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -469,9 +469,11 @@ function EarningsReportDialog({ open, onClose, orders }) {
                             {dayData.orders.map((order) => (
                               <TableRow key={order.id}>
                                 <TableCell>
-                                  {new Date(
-                                    order.delivered_at
-                                  ).toLocaleDateString("en-GB")}
+                                  {order.delivered_at
+                                    ? new Date(
+                                        order.delivered_at
+                                      ).toLocaleDateString("en-GB")
+                                    : "-"}
                                 </TableCell>
                                 <TableCell>
                                   {order.user_profiles?.parent_name || "N/A"}
@@ -633,7 +635,7 @@ export default function AdminOrders() {
           justifyContent: "space-between",
           alignItems: "center",
           my: 3,
-          px: { xs: 0, sm: 3 }
+          px: { xs: 0, sm: 3 },
         }}
       >
         <Typography variant="h4" gutterBottom sx={{ paddingTop: 2 }}>
