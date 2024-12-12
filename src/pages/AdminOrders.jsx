@@ -794,6 +794,12 @@ export default function AdminOrders() {
                         </Typography>
                       </Box>
                     )}
+                  {selectedOrder.user_profiles.role === "staff" && (
+                    <Typography variant="body1">
+                      Staff GEMS ID:{" "}
+                      {selectedOrder.user_profiles.details.staff_gems_id}
+                    </Typography>
+                  )}
                 </Grid>
                 <Grid
                   item

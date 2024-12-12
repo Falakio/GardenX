@@ -1,14 +1,12 @@
 /* Hide scrollbar for Chrome, Safari and Opera on mobile */
-@media only screen and (max-width: 600px) {
-  ::-webkit-scrollbar {
-    display: none;
-  }
-  
-  /* Hide scrollbar for IE, Edge and Firefox */
-  * {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-  }
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* Ensure proper box-sizing */
@@ -19,6 +17,12 @@
 }
 
 /* Set root height */
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
+}
+
+body {
+  background-image: url("./assets/bg.jpg");
 }

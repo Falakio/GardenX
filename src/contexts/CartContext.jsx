@@ -3,7 +3,7 @@ import { useAuth } from './AuthContext'
 import { isAdmin } from '../services/supabase'
 
 const CartContext = createContext()
-const CART_STORAGE_KEY = 'gems_garden_cart'
+const CART_STORAGE_KEY = 'ois_garden_cart'
 
 export function useCart() {
   return useContext(CartContext)

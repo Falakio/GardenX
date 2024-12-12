@@ -1,39 +1,43 @@
-import { Routes, Route } from 'react-router-dom'
-import { Container, Fab, Badge, Box } from '@mui/material'
-import { ThemeProvider } from '@mui/material/styles'
-import { ShoppingCart as ShoppingCartIcon } from '@mui/icons-material'
-import { Link as RouterLink } from 'react-router-dom'
-import theme from './theme'
-import Navbar from './components/Navbar'
-import Home from './pages/Home'
-import Shop from './pages/Shop'
-import Login from './pages/Login'
-import AdminDashboard from './pages/AdminDashboard'
-import AdminProducts from './pages/AdminProducts'
-import AdminOrders from './pages/AdminOrders'
-import Checkout from './pages/Checkout'
-import Orders from './pages/Orders'
-import Profile from './pages/Profile'
-import Cart from './pages/Cart'
-import SignUp from './pages/SignUp'
-import ProtectedRoute from './components/ProtectedRoute'
-import { AuthProvider } from './contexts/AuthContext'
-import { CartProvider, useCart } from './contexts/CartContext'
+import { Routes, Route } from "react-router-dom";
+import { Container, Fab, Badge, Box } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
+import { ShoppingCart as ShoppingCartIcon } from "@mui/icons-material";
+import { Link as RouterLink } from "react-router-dom";
+import theme from "./theme";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Shop from "./pages/Shop";
+import Login from "./pages/Login";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminProducts from "./pages/AdminProducts";
+import AdminOrders from "./pages/AdminOrders";
+import Checkout from "./pages/Checkout";
+import Orders from "./pages/Orders";
+import Profile from "./pages/Profile";
+import Cart from "./pages/Cart";
+import SignUp from "./pages/SignUp";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./contexts/AuthContext";
+import { CartProvider, useCart } from "./contexts/CartContext";
+import Footer from "./components/Footer";
+import Credits from "./pages/Credits";
 
 function MainContent() {
-  const { itemCount } = useCart()
-  
+  const { itemCount } = useCart();
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+    >
       <Navbar />
-      <Container 
-        maxWidth="lg" 
-        sx={{ 
+      <Container
+        maxWidth="lg"
+        sx={{
           mt: { xs: 8, sm: 9 },
           mb: 4,
           flexGrow: 1,
-          display: 'flex',
-          flexDirection: 'column',
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <Routes>
@@ -41,68 +45,69 @@ function MainContent() {
           <Route path="/shop" element={<Shop />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route 
-            path="/cart" 
+          <Route path="/credits" element={<Credits />} />
+          <Route
+            path="/cart"
             element={
               <ProtectedRoute>
                 <Cart />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/checkout" 
+          <Route
+            path="/checkout"
             element={
               <ProtectedRoute>
                 <Checkout />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/orders" 
+          <Route
+            path="/orders"
             element={
               <ProtectedRoute>
                 <Orders />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/profile" 
+          <Route
+            path="/profile"
             element={
               <ProtectedRoute>
                 <Profile />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin" 
+          <Route
+            path="/admin"
             element={
               <ProtectedRoute adminOnly>
                 <AdminDashboard />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/products" 
+          <Route
+            path="/admin/products"
             element={
               <ProtectedRoute adminOnly>
                 <AdminProducts />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/orders" 
+          <Route
+            path="/admin/orders"
             element={
               <ProtectedRoute adminOnly>
                 <AdminOrders />
               </ProtectedRoute>
-            } 
+            }
           />
         </Routes>
       </Container>
       <Box
         sx={{
-          display: { xs: 'block', md: 'none' },
-          position: 'fixed',
+          display: { xs: "block", md: "none" },
+          position: "fixed",
           bottom: 16,
           right: 16,
           zIndex: (theme) => theme.zIndex.drawer + 2,
@@ -124,7 +129,7 @@ function MainContent() {
         </Fab>
       </Box>
     </div>
-  )
+  );
 }
 
 function App() {
@@ -135,8 +140,9 @@ function App() {
           <MainContent />
         </CartProvider>
       </AuthProvider>
+      <Footer />
     </ThemeProvider>
-  )
+  );
 }
 
-export default App
+export default App;

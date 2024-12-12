@@ -21,7 +21,7 @@ export const supabase = createClient(
 
 // User role helper
 export const isAdmin = (user) => {
-  return user?.email?.endsWith("@gemsdaa.net") || false;
+  return user?.email === "admin@gemsdaa.net" || false;
 };
 
 // Auth helper functions

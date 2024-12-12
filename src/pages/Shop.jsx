@@ -81,8 +81,8 @@ export default function Shop() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
-      <Box sx={{ mt: { xs: 4, sm: 8 }, mb: 4 }}>
+    <Container maxWidth="lg" sx={{ pb: { xs: 2, sm: 3 } }}>
+      <Box sx={{ mt: { xs: 4, sm: 6 }, mb: 4 }}>
         <Typography variant="h4" gutterBottom>
           Products
         </Typography>
@@ -93,7 +93,11 @@ export default function Shop() {
         )}
         <FormControl fullWidth margin="normal">
           <InputLabel>Category</InputLabel>
-          <Select value={category} onChange={handleCategoryChange}>
+          <Select
+            value={category}
+            onChange={handleCategoryChange}
+            sx={{ backgroundColor: "white" }}
+          >
             <MenuItem value="">All</MenuItem>
             <MenuItem value="Vegetable">Vegetable</MenuItem>
             <MenuItem value="Plant">Plant</MenuItem>

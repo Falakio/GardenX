@@ -5,7 +5,7 @@ function Home() {
   const navigate = useNavigate()
 
   return (
-    <Box>
+    <Box sx={{pt: 8}}>
       {/* Hero Section */}
       <Box
         sx={{

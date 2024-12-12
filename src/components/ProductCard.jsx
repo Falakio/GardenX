@@ -44,6 +44,11 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
         display: "flex",
         flexDirection: "column",
         position: "relative",
+        background: "rgba(255, 255, 255, 0.1)",
+        backdropFilter: "blur(10px)",
+        boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+        border: "1px solid rgba(255, 255, 255, 0.3)",
+        borderRadius: "15px",
       }}
     >
       <Box
@@ -55,7 +60,7 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
           pb: 0,
         }}
       >
-        {/* Product Info (aa) */}
+        {/* Product Info */}
         <Box
           sx={{
             width: "65%",
@@ -110,7 +115,7 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
           </Box>
         </Box>
 
-        {/* Product Image (b) */}
+        {/* Product Image */}
         <Box
           sx={{
             width: "35%",
@@ -136,7 +141,7 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
         </Box>
       </Box>
 
-      {/* Add to Cart Button (cccc) */}
+      {/* Add to Cart Button */}
       {showAddToCart && (
         <Box sx={{ p: 2, pt: 1, width: "100%" }}>
           <Box
