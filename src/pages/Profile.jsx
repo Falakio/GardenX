@@ -146,7 +146,7 @@ export default function Profile() {
       });
       return false;
     }
-    // Validate GEMS ID (6 digits)
+    // Validate GEMS ID (6 digits for parent, 8 digits for staff)
     if (
       editForm.role === "parent" &&
       !/^[1-9]\d{5}$/.test(editForm.details.student_gems_id)
@@ -155,6 +155,17 @@ export default function Profile() {
         open: true,
         message:
           "GEMS ID must be exactly 6 digits starting with a non-zero digit",
+        severity: "error",
+      });
+      return false;
+    }
+    if (
+      editForm.role === "staff" &&
+      !/^\d{8}$/.test(editForm.details.staff_gems_id)
+    ) {
+      setSnackbar({
+        open: true,
+        message: "Staff GEMS ID must be exactly 8 digits",
         severity: "error",
       });
       return false;
@@ -458,7 +469,7 @@ export default function Profile() {
                     value={editForm.details.staff_gems_id}
                     onChange={handleFormChange}
                     margin="normal"
-                    inputProps={{ maxLength: 6 }}
+                    inputProps={{ maxLength: 8 }}
                     helperText="Enter your GEMS ID"
                   />
                 </Grid>
