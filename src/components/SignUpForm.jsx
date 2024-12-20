@@ -277,7 +277,7 @@ export default function SignUpForm() {
           onChange={handleChange}
           error={!!errors.staff_gems_id}
           helperText={errors.staff_gems_id}
-          inputProps={{ maxLength: 6 }}
+          inputProps={{ maxLength: 8 }}
         />
       )}
 
