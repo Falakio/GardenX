@@ -276,7 +276,7 @@ export default function SignUpForm() {
           name="details.staff_gems_id"
           onChange={handleChange}
           error={!!errors.staff_gems_id}
-          helperText={errors.staff_gems_id}
+          helperText={errors.staff_gems_id || "Must be exactly 8 digits"}
           inputProps={{ maxLength: 8 }}
         />
       )}
