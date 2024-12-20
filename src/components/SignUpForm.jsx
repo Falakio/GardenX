@@ -58,7 +58,7 @@ export default function SignUpForm() {
 
     if (formData.role === "staff") {
       if (!/^\d{8}$/.test(formData.details.staff_gems_id)) {
-        newErrors.staff_gems_id = "Must be 6 digits";
+        newErrors.staff_gems_id = "Must be 8 digits";
       }
     }
 
