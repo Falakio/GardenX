@@ -113,12 +113,12 @@ function AdminProducts() {
     if (product) {
       setEditingProduct(product);
       setProductForm({
-        name: product.name,
+        name: returnName(product.name),
         price: product.price.toString(),
         stock_quantity: product.stock_quantity.toString(),
         image_url: product.image_url || "",
         category: product.category || "",
-        weight: product.weight || "",
+        weight: returnWeight(product.name) || "",
       });
       setPreviewUrl(product.image_url || "");
     } else {
