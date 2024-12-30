@@ -22,7 +22,7 @@ const Credits = () => {
         <Box sx={{ mt: 2 }}>
           <Typography variant="h6">Developers:</Typography>
           <Typography variant="body1">
-            Aman Sanoj, AbdulRahman Maniar
+            Aman Sanoj, AbdulRahman Maniar (Class of 2026, GEMS Our Own Indian School)
           </Typography>
         </Box>
         <Box sx={{ mt: 2 }}>

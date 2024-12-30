@@ -55,6 +55,8 @@ function AdminProducts() {
     price: "",
     stock_quantity: "",
     image_url: "",
+    category: "",
+    weight: "",
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -97,6 +99,16 @@ function AdminProducts() {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
+  const returnWeight = (name) => {
+    const match = name.match(/\(([^)]+)\)/);
+    return match ? match[1] : "";
+  };
+
+  const returnName = (name) => {
+    const match = name.match(/^(.*?)\s*\(/);
+    return match ? match[1].trim() : name;
+  };
+
   const handleOpenDialog = (product = null) => {
     if (product) {
       setEditingProduct(product);
@@ -105,7 +117,8 @@ function AdminProducts() {
         price: product.price.toString(),
         stock_quantity: product.stock_quantity.toString(),
         image_url: product.image_url || "",
-        category: product.category || "", // Add category field
+        category: product.category || "",
+        weight: product.weight || "",
       });
       setPreviewUrl(product.image_url || "");
     } else {
@@ -115,7 +128,8 @@ function AdminProducts() {
         price: "",
         stock_quantity: "",
         image_url: "",
-        category: "", // Add category field
+        category: "",
+        weight: "",
       });
     }
     setDialogOpen(true);
@@ -144,7 +158,7 @@ function AdminProducts() {
   const handleSubmit = async () => {
     try {
       const productData = {
-        name: productForm.name,
+        name: `${productForm.name} (${productForm.weight})`,
         price: parseFloat(productForm.price),
         stock_quantity: parseInt(productForm.stock_quantity),
         image_url: productForm.image_url,
@@ -285,6 +299,7 @@ function AdminProducts() {
               <TableRow>
                 <TableCell>Name</TableCell>
                 <TableCell>Price</TableCell>
+                <TableCell>Weight</TableCell>
                 <TableCell>Stock</TableCell>
                 <TableCell>Category</TableCell>
                 <TableCell>Status</TableCell>
@@ -294,8 +309,9 @@ function AdminProducts() {
             <TableBody>
               {products.map((product) => (
                 <TableRow key={product.id}>
-                  <TableCell>{product.name}</TableCell>
+                  <TableCell>{returnName(product.name)}</TableCell>
                   <TableCell>{product.price.toFixed(2)}</TableCell>
+                  <TableCell>{returnWeight(product.name)}</TableCell>
                   <TableCell>{product.stock_quantity}</TableCell>
                   <TableCell>
                     {capitalizeFirstLetter(product.category)}
@@ -356,6 +372,15 @@ function AdminProducts() {
               name="price"
               type="number"
               value={productForm.price}
+              onChange={handleFormChange}
+              fullWidth
+              required
+            />
+            <TextField
+              margin="dense"
+              label="Weight"
+              name="weight"
+              value={productForm.weight}
               onChange={handleFormChange}
               fullWidth
               required

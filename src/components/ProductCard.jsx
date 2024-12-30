@@ -37,6 +37,7 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
   };
 
   return (
+    <>
     <Card
       elevation={3}
       sx={{
@@ -189,15 +190,16 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
           </Button>
         </Box>
       )}
-
-      <Snackbar
+    </Card>
+    <Snackbar
         open={showSuccess}
         autoHideDuration={2000}
         onClose={() => setShowSuccess(false)}
         message="Added to cart"
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        sx={{ zIndex: 9999 }}
       />
-    </Card>
+    </>
   );
 }
 

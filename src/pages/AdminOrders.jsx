@@ -28,11 +28,94 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
+
 import { Visibility, Assessment } from "@mui/icons-material";
-import { getAdminOrders, supabase } from "../services/supabase";
+// import { sendEmail } from '../services/smtp';
+import { getAdminOrders, getUserProfile, getOrderInfo, supabase } from "../services/supabase";
 
 const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
+};
+
+const generateStatusEmailHtml = (profile, cart, total, orderMode, orderId, orderStatus) => {
+  const itemsHtml = cart
+    .map(
+      (item) => `
+      <tr>
+        <td style="padding: 8px; border: 1px solid #ddd;">${item.name}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${item.quantity}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">AED ${(item.price * item.quantity).toFixed(2)}</td>
+      </tr>
+    `
+    )
+    .join("");
+
+    const orderModeMessage = profile.role !== "visitor" ? `<p><strong>Order Mode:</strong> ${orderMode}</p>` : "";
+    const status = orderStatus[0].toUpperCase() + orderStatus.slice(1);
+
+  let statusMessage = "";
+  let reorderButton = "";
+
+  if (orderStatus === "cancelled") {
+    statusMessage = orderMode === "pickup"
+      ? "<p>Your order has been cancelled as it was not collected on the same day.</p>"
+      : "<p>Your order has been cancelled as the payment could not be made or the recipient was not present to receive the order.</p>";
+      reorderButton = `<p>You can reorder the same items if you wish using the green 'Reorder' button below.</p>
+                     <a href="https://oisgarden.vercel.app/reorder/${orderId}" style="display: inline-block; padding: 10px 20px; color: white; background-color: green; border-radius: 5px; text-decoration: none;">Reorder</a>`;
+  } else if (orderStatus === "delivered") {
+    statusMessage = orderMode === "pickup"
+      ? "<p>Your order has been picked up.</p>"
+      : "<p>Your order has been delivered.</p>";
+      reorderButton = `<p>You can reorder the same items if you wish using the green 'Reorder' button below.</p>
+      <a href="https://oisgarden.vercel.app/reorder/${orderId}" style="display: inline-block; padding: 10px 20px; color: white; background-color: green; border-radius: 5px; text-decoration: none;">Reorder</a>`;
+  } else if (orderStatus === "picked up") {
+    statusMessage = "<p>Your order has been picked up.</p>";
+  } else {
+    statusMessage = `<p>Your order status is now <span style="background-color: ${getStatusColorCode(orderStatus)}; color: ${getStatusTextColor(orderStatus)}; padding: 5px 10px; border-radius: 20px;">${status}</span>.</p>`;
+  }
+
+  return `
+    <div style="padding: 3px; display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+        <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); max-width: 600px; width: 100%;">
+          <div style="text-align: center; margin-bottom: 20px; background-color: f2f2f2; padding: 10px; border-radius: 8px;">
+            <img src="https://i.imgur.com/j5AOMcr.png" alt="App Logo" style="height: 50px; margin-bottom: 10px;" />
+             <h1 style="color: green; margin: 0;">OIS Organic Garden</h1>
+          </div>
+        <h4 style="color: green;">Order ID: ${orderId}</h4>
+        <span style="background-color: ${getStatusColorCode(orderStatus)}; color: ${getStatusTextColor(orderStatus)}; padding: 8px 12px; font-weight: bold; border: 2px solid ${getStatusTextColor(orderStatus)}; border-radius: 20px;">${status}</span>
+        <h2 style="color: green;">Order Summary</h2>
+        <p><strong>Name:</strong> ${profile.firstName} ${profile.lastName}</p>
+        ${profile.role === "parent" ? `
+          <h3 style="color: green;">Student Information</h3>
+          <p><strong>Name:</strong> ${profile.details.student_first_name} ${profile.details.student_last_name}</p>
+          <p><strong>Class:</strong> ${profile.details.student_class} ${profile.details.student_section}</p>
+          <p><strong>GEMS ID:</strong> ${profile.details.student_gems_id}</p>
+        ` : ""}
+        ${profile.role === "staff" ? `
+          <h3 style="color: green;">Staff Information</h3>
+          <p><strong>Staff GEMS ID:</strong> ${profile.details.staff_gems_id}</p>
+        ` : ""}
+        <h3 style="color: green;">Items</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <thead>
+            <tr>
+              <th style="padding: 8px; border: 1px solid #ddd; background-color: #f2f2f2;">Item</th>
+              <th style="padding: 8px; border: 1px solid #ddd; background-color: #f2f2f2;">Quantity</th>
+              <th style="padding: 8px; border: 1px solid #ddd; background-color: #f2f2f2;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
+        <h3 style="color: green; margin-top: 20px;">Total: AED ${total.toFixed(2)}</h3>
+        ${orderModeMessage}
+        ${statusMessage}
+        ${reorderButton}
+        <p>In case of any discrepancies, you can contact us at 05012345.</p>
+      </div>
+    </div>
+  `;
 };
 
 const getStatusColorCode = (status) => {
@@ -291,11 +374,7 @@ function EarningsReportDialog({ open, onClose, orders }) {
                         <td>${new Date(order.delivered_at).toLocaleDateString(
                           "en-GB"
                         )}</td>
-                        <td>${order.user_profiles?.parent_name || "N/A"}${
-                          order.user_profiles?.student_class === "NA"
-                            ? " (S)"
-                            : ""
-                        }</td>
+                        <td>${order.user_profiles?.first_name || "N/A"}</td>
                         <td>
                           <ul class="items-list">
                             ${order.items
@@ -567,19 +646,29 @@ export default function AdminOrders() {
           ? { delivered_at: new Date().toISOString() }
           : {}),
       };
-
+  
       const { error } = await supabase
         .from("orders")
         .update(updateData)
         .eq("id", orderId);
-
+  
       if (error) throw error;
-
+  
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
           order.id === orderId ? { ...order, status: newStatus } : order
         )
       );
+  
+      // Fetch order info
+      const { profile, cartItems, total, orderMode } = await getOrderInfo(orderId);
+  
+      // Generate email content
+      const emailHtml = generateStatusEmailHtml(profile, cartItems, total, orderMode, orderId, newStatus);
+  
+      // Send email notification
+      // await sendEmail(profile.email, `Your Order has been ${newStatus}`, 'Your order status has been updated.', emailHtml);
+  
       setSnackbar({
         open: true,
         message: "Order status updated successfully",
@@ -655,8 +744,7 @@ export default function AdminOrders() {
             <TableRow>
               <TableCell>Order ID</TableCell>
               <TableCell>Date</TableCell>
-              <TableCell>First Name</TableCell>
-              <TableCell>Last Name</TableCell>
+              <TableCell>Name</TableCell>
               <TableCell>Phone</TableCell>
               <TableCell>Mode</TableCell>
               <TableCell>Role</TableCell>
@@ -670,8 +758,7 @@ export default function AdminOrders() {
               <TableRow key={order.id}>
                 <TableCell>{order.id.substring(0, 8)}</TableCell>
                 <TableCell>{order.created_at.substring(0, 10)}</TableCell>
-                <TableCell>{order.user_profiles.firstName}</TableCell>
-                <TableCell>{order.user_profiles.lastName}</TableCell>
+                <TableCell>{order.user_profiles.firstName} {order.user_profiles.lastName}</TableCell>
                 <TableCell>
                   <Box
                     component="a"

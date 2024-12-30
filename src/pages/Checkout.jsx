@@ -18,6 +18,7 @@ import { ArrowBack } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { createOrder, getUserProfile } from "../services/supabase";
+// import { sendEmail } from '../services/smtp';
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -65,17 +66,74 @@ export default function Checkout() {
 
   const handleOrderModeChange = (e) => {
     setOrderMode(e.target.value);
-    console.log("Order mode changed to:", e.target.value); // Debugging log
+  };
+
+  const generateInvoiceHtml = (profile, cart, total, orderMode, orderId, orderStatus) => {
+    const itemsHtml = cart
+      .map(
+        (item) => `
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">${item.name}</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${item.quantity}</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">AED ${(item.price * item.quantity).toFixed(2)}</td>
+        </tr>
+      `
+      )
+      .join("");
+  
+    const orderModeMessage = profile.role !== "visitor" ? `<p><strong>Order Mode:</strong> ${orderMode[0].toUpperCase() + orderMode.slice(1)}</p>` : "";
+    const status = orderStatus[0].toUpperCase() + orderStatus.slice(1);
+
+    return `
+      <div style="padding: 3px; display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+        <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); max-width: 600px; width: 100%;">
+          <div style="text-align: center; margin-bottom: 20px; background-color: f2f2f2; padding: 10px; border-radius: 8px;">
+            <img src="https://i.imgur.com/j5AOMcr.png" alt="App Logo" style="height: 50px; margin-bottom: 10px;" />
+            <h1 style="color: green; margin: 0;">OIS Organic Garden</h1>
+          </div>
+          <h4 style="color: green;">Order ID: ${orderId}</h4>
+          <span style="background-color: ${orderStatus === 'completed' ? 'green' : 'orange'}; color: white; padding: 5px 10px; border-radius: 20px;">${status}</span>
+          <h2 style="color: green;">Order Summary</h2>
+          <p><strong>Name:</strong> ${profile.firstName} ${profile.lastName}</p>
+          ${profile.role === "parent" ? `
+            <h3 style="color: green;">Student Information</h3>
+            <p><strong>Name:</strong> ${profile.details.student_first_name} ${profile.details.student_last_name}</p>
+            <p><strong>Class:</strong> ${profile.details.student_class} ${profile.details.student_section}</p>
+            <p><strong>GEMS ID:</strong> ${profile.details.student_gems_id}</p>
+          ` : ""}
+          ${profile.role === "staff" ? `
+            <h3 style="color: green;">Staff Information</h3>
+            <p><strong>Staff GEMS ID:</strong> ${profile.details.staff_gems_id}</p>
+          ` : ""}
+          <h3 style="color: green;">Items</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+            <thead>
+              <tr>
+                <th style="padding: 8px; border: 1px solid #ddd; background-color: #f2f2f2;">Item</th>
+                <th style="padding: 8px; border: 1px solid #ddd; background-color: #f2f2f2;">Quantity</th>
+                <th style="padding: 8px; border: 1px solid #ddd; background-color: #f2f2f2;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+          <h3 style="color: green; margin-top: 20px;">Total: AED ${total.toFixed(2)}</h3>
+          ${orderModeMessage}
+          <br>
+          <p style="text-align: center;">Thank you for your order!</p>
+        </div>
+      </div>
+    `;
   };
 
   const handleCheckout = async () => {
     if (!user || !profile) return;
-
+  
     setLoading(true);
     setError(null);
-
+  
     try {
-      console.log("Order mode at checkout:", orderMode); // Debugging log
       const orderData = {
         user_id: user.id,
         total_amount: total,
@@ -87,10 +145,13 @@ export default function Checkout() {
         })),
         mode: orderMode,
       };
-
-      const { error } = await createOrder(orderData);
+  
+      const { data: order, error } = await createOrder(orderData);
       if (error) throw error;
-
+  
+      const invoiceHtml = generateInvoiceHtml(profile, cart, total, orderMode, order.id, order.status);
+      // await sendEmail(profile.email, 'Your Order Invoice', 'Thank you for your order!', invoiceHtml);
+  
       clearCart();
       navigate("/orders");
     } catch (error) {
@@ -114,19 +175,6 @@ export default function Checkout() {
       <Container sx={{ mt: 4 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
-        </Alert>
-        <Button variant="contained" onClick={() => navigate("/profile")}>
-          Complete Profile
-        </Button>
-      </Container>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <Container sx={{ mt: 4 }}>
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          Please complete your profile before checking out.
         </Alert>
         <Button variant="contained" onClick={() => navigate("/profile")}>
           Complete Profile

@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+// import { sendNotification } from './notifications';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -12,11 +13,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.log("VITE_SUPABASE_ANON_KEY:", supabaseAnonKey ? "Set" : "Missing");
 }
 
-// Create client with fallback values for development
 export const supabase = createClient(
-  supabaseUrl || "http://localhost:3000",
-  supabaseAnonKey ||
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
+  supabaseUrl,
+  supabaseAnonKey
 );
 
 // User role helper
@@ -63,7 +62,6 @@ export const getProducts = async () => {
 
 export const createUserProfile = async (profileData) => {
   try {
-    console.log("Creating user profile with data:", profileData);
     const { data, error } = await supabase
       .from("user_profiles")
       .insert([profileData])
@@ -76,7 +74,6 @@ export const createUserProfile = async (profileData) => {
       throw error;
     }
 
-    console.log("Successfully created profile:", data);
     return { data, error: null };
   } catch (error) {
     console.error("createUserProfile error:", error);
@@ -86,7 +83,6 @@ export const createUserProfile = async (profileData) => {
 
 export const getUserProfile = async (userId) => {
   try {
-    console.log("Fetching profile for user:", userId);
     const { data, error } = await supabase
       .from("user_profiles")
       .select("*")
@@ -98,7 +94,6 @@ export const getUserProfile = async (userId) => {
       throw error;
     }
 
-    console.log("Profile data:", data);
 
     return { data, error: null };
   } catch (error) {
@@ -109,12 +104,6 @@ export const getUserProfile = async (userId) => {
 
 export const updateUserProfile = async (userId, profileData) => {
   try {
-    console.log(
-      "Updating profile for user:",
-      userId,
-      "with data:",
-      profileData
-    );
     const { data, error } = await supabase
       .from("user_profiles")
       .update(profileData)
@@ -127,7 +116,6 @@ export const updateUserProfile = async (userId, profileData) => {
       throw error;
     }
 
-    console.log("Successfully updated profile:", data);
     return { data, error: null };
   } catch (error) {
     console.error("updateUserProfile error:", error);
@@ -137,15 +125,11 @@ export const updateUserProfile = async (userId, profileData) => {
 
 export const createOrder = async (orderData) => {
   try {
-    console.log("Creating order with items:", orderData.items);
-
-    // Get user profile
     const { data: profile, error: profileError } = await getUserProfile(
       orderData.user_id
     );
     if (profileError) throw profileError;
 
-    // First verify stock availability - look up by ID or name
     let productsQuery = supabase
       .from("products")
       .select("id, name, stock_quantity");
@@ -169,16 +153,12 @@ export const createOrder = async (orderData) => {
       return { error: stockError };
     }
 
-    console.log("Found products:", products);
-
-    // Verify stock for each item
     const stockMap = {};
     for (const product of products) {
       stockMap[product.id] = product;
       stockMap[product.name] = product;
     }
 
-    // Update items with product IDs if they're missing
     const updatedItems = orderData.items.map((item) => {
       const product = stockMap[item.id] || stockMap[item.name];
       if (!product) {
@@ -191,7 +171,6 @@ export const createOrder = async (orderData) => {
       };
     });
 
-    // Verify stock levels
     for (const item of updatedItems) {
       const product = stockMap[item.id] || stockMap[item.name];
       if (product.stock_quantity < item.quantity) {
@@ -219,16 +198,11 @@ export const createOrder = async (orderData) => {
       return { error: orderError };
     }
 
-    console.log("Order created, updating stock levels...");
 
     // Update stock for each item
     for (const item of updatedItems) {
       const product = stockMap[item.id] || stockMap[item.name];
       const newStock = product.stock_quantity - item.quantity;
-
-      console.log(
-        `Updating stock for ${item.name} from ${product.stock_quantity} to ${newStock}`
-      );
 
       const { error: updateError } = await supabase
         .from("products")
@@ -240,8 +214,13 @@ export const createOrder = async (orderData) => {
         return { error: updateError };
       }
     }
+    // Format notification message
+    const itemsList = orderData.items.map(item => `${item.name} x ${item.quantity}`).join('\n');
+    const notificationMessage = `Name: ${profile.firstName} ${profile.lastName}\n${itemsList}`;
 
-    console.log("Order completed successfully");
+    // Send ntfy.sh notification
+    await sendNotification('New Order Created', notificationMessage);
+
     return { data: order, error: null };
   } catch (error) {
     console.error("Error in createOrder:", error);
@@ -291,7 +270,6 @@ export const fixInvalidStockValues = async () => {
 // supabase.js
 export const getUserOrders = async (userId) => {
   try {
-    console.log("Fetching orders for user:", userId);
     const { data, error } = await supabase
       .from("orders")
       .select(
@@ -313,7 +291,6 @@ export const getUserOrders = async (userId) => {
       throw error;
     }
 
-    console.log("Orders fetched:", data);
     return { data, error: null };
   } catch (error) {
     console.error("getUserOrders error:", error);
@@ -423,7 +400,6 @@ export const deleteProductImage = async (fileName) => {
 
 export const getAdminOrders = async () => {
   try {
-    console.log("Fetching admin orders");
     const { data, error } = await supabase
       .from("orders")
       .select(
@@ -446,10 +422,59 @@ export const getAdminOrders = async () => {
       throw error;
     }
 
-    console.log("Admin orders fetched:", data);
     return { data, error: null };
   } catch (error) {
     console.error("getAdminOrders error:", error);
     return { data: null, error };
   }
+};
+
+export const getOrderInfo = async (orderId) => {
+  const { data: order, error: orderError } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('id', orderId)
+    .single();
+  if (orderError) throw orderError;
+
+  const { data: profile, error: profileError } = await getUserProfile(order.user_id);
+  if (profileError) throw profileError;
+
+  const cartItems = order.items.map((item) => ({
+    name: item.name,
+    price: item.price,
+    quantity: item.quantity
+  }));
+
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  return { profile, cartItems, total, orderMode: order.mode };
+};
+
+export const reorderItems = async (orderId) => {
+  const { profile, cartItems, total, orderMode } = await getOrderInfo(orderId);
+
+  const newOrderData = {
+    user_id: profile.id,
+    total_amount: total,
+    items: cartItems,
+    mode: orderMode,
+    status: 'pending',
+  };
+
+  const { data: newOrder, error } = await supabase
+    .from('orders')
+    .insert([newOrderData])
+    .single();
+
+  if (error) throw error;
+  
+  // Format notification message
+  const itemsList = cartItems.map(item => `${item.name} x ${item.quantity}`).join('\n');
+  const notificationMessage = `Name: ${profile.firstName} ${profile.lastName}\n${itemsList}`;
+
+  // Send ntfy.sh notification
+  await sendNotification('New Order Created', notificationMessage);
+
+  return newOrder;
 };
