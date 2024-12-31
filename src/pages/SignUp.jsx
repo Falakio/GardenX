@@ -103,6 +103,10 @@ export default function SignUp() {
               <Link component={RouterLink} to="/login" variant="body2">
                 Already have an account? Sign in
               </Link>
+              <br />
+              <Link component={RouterLink} to="/reset-password" variant="body2">
+                Forgot your password?
+              </Link>
             </Box>
           </Box>
         </Paper>

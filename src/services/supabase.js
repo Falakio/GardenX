@@ -478,3 +478,10 @@ export const reorderItems = async (orderId) => {
 
   return newOrder;
 };
+
+export const sendPasswordResetEmail = async (email) => {
+  const { error } = await supabase.auth.api.resetPasswordForEmail(email);
+  if (error) {
+    throw error;
+  }
+};

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import {
   Box,
   Button,
@@ -10,6 +10,7 @@ import {
   Tab,
   Tabs,
   Alert,
+  Link,
 } from "@mui/material";
 import { signInWithEmail } from "../services/supabase";
 import SignUpForm from "../components/SignUpForm";
@@ -115,6 +116,11 @@ function Login() {
               >
                 Sign In
               </Button>
+            </Box>
+            <Box sx={{ textAlign: 'center' }}>
+              <Link component={RouterLink} to="/reset-password" variant="body2">
+                Forgot your password?
+              </Link>
             </Box>
           </>
         ) : (
