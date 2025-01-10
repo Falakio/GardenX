@@ -149,7 +149,7 @@ export default function Checkout() {
       const { data: order, error } = await createOrder(orderData);
       if (error) throw error;
   
-      const invoiceHtml = generateInvoiceHtml(profile, cart, total, orderMode, order.id, order.status);
+      // const invoiceHtml = generateInvoiceHtml(profile, cart, total, orderMode, order.id, order.status);
       // await sendEmail(profile.email, 'Your Order Invoice', 'Thank you for your order!', invoiceHtml);
   
       clearCart();

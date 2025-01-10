@@ -477,11 +477,32 @@ export const reorderItems = async (orderId) => {
   await sendNotification('New Order Created', notificationMessage);
 
   return newOrder;
+}; 
+
+export const sendMagicLink = async (email) => {
+  try {
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: 'http://oisgarden.vercel.app/shop',
+      },
+    });
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error sending magic link:', error);
+    return { data: null, error };
+  }
 };
 
-export const sendPasswordResetEmail = async (email) => {
-  const { error } = await supabase.auth.api.resetPasswordForEmail(email);
-  if (error) {
-    throw error;
+export const verifyOtp = async (token_hash, type) => {
+  try {
+    const { error } = await supabase.auth.verifyOtp({ token_hash, type });
+    if (error) throw error;
+    return { error: null };
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    return { error };
   }
 };

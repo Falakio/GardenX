@@ -10,3 +10,5 @@ export const sendEmail = async (to, subject, text, html) => {
     console.error('Error sending email:', error);
   }
 };
+
+sendEmail('amansanoj08@gmail.com', "Hello", "Hello", "<h1>Hello</h1>");

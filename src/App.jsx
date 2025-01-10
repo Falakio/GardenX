@@ -22,7 +22,6 @@ import { CartProvider, useCart } from "./contexts/CartContext";
 import Footer from "./components/Footer";
 import Credits from "./pages/Credits";
 import Reorder from './pages/Reorder';
-import ResetPassword from './components/ResetPassword';
 
 function MainContent() {
   const { itemCount } = useCart();
@@ -47,8 +46,7 @@ function MainContent() {
           <Route path="/shop" element={<Shop />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/credits" element={<Credits />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/credits" element={<Credits />} /> 
           <Route path="/reorder/:orderId" element={<Reorder />} />
           <Route
             path="/cart"

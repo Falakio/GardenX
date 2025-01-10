@@ -11,10 +11,16 @@ import {
   Tabs,
   Alert,
   Link,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import { signInWithEmail } from "../services/supabase";
 import SignUpForm from "../components/SignUpForm";
 import { useAuth } from "../contexts/AuthContext";
+import InfoIcon from "@mui/icons-material/Info";
+import MagicIcon from "@mui/icons-material/AutoAwesome";
+import { sendMagicLink } from '../services/supabase';
+
 
 function Login() {
   const navigate = useNavigate();
@@ -22,8 +28,10 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState(0); // 0 for sign in, 1 for sign up
+  const [tab, setTab] = useState(0);
+  const [countdown, setCountdown] = useState(0);
 
   useEffect(() => {
     if (user) {
@@ -31,8 +39,35 @@ function Login() {
     }
   }, [user, navigate]);
 
+  useEffect(() => {
+    let timer;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
+  };
+
+  const handleSendMagicLink = async () => {
+    setLoading(true);
+    if (!email) {
+      setError('Please enter your email');
+      setLoading(false);
+      return;
+    }
+    const { data, error } = await sendMagicLink(email);
+    if (error) {
+      setError('Failed to send magic link. Please try again.');
+      setMessage('');
+    } else {
+      setMessage('A magic link has been sent to your email.');
+      setError('');
+      setCountdown(60);
+    }
+    setLoading(false);
   };
 
   const handleEmailSignIn = async (email, password) => {
@@ -62,16 +97,17 @@ function Login() {
           <Tab label="Sign In" />
           <Tab label="Sign Up" />
         </Tabs>
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
         {tab === 0 ? (
           <>
             <Typography variant="h4" component="h1" gutterBottom align="center">
               Sign In
             </Typography>
+            {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        {message && <Alert severity="success">{message}</Alert>}
             <Box
               component="form"
               onSubmit={(e) => {
@@ -117,11 +153,24 @@ function Login() {
                 Sign In
               </Button>
             </Box>
-            <Box sx={{ textAlign: 'center' }}>
-              <Link component={RouterLink} to="/reset-password" variant="body2">
-                Forgot your password?
-              </Link>
-            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={handleSendMagicLink}
+          fullWidth
+          startIcon={<MagicIcon />}
+          sx={{ mr: 1 }}
+          disabled={countdown > 0}
+        >
+                {countdown > 0 ? `Send Magic Link (${countdown}s)` : 'Send Magic Link'}
+                </Button>
+        <Tooltip title="If you forgot your password we can help you sign in using a one time link sent to your email" placement="right">
+          <IconButton>
+            <InfoIcon />
+          </IconButton>
+        </Tooltip>
+      </Box>
           </>
         ) : (
           <SignUpForm />
