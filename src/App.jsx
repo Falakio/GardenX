@@ -15,7 +15,6 @@ import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
-import SignUp from "./pages/SignUp";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider, useCart } from "./contexts/CartContext";
@@ -45,7 +44,6 @@ function MainContent() {
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
           <Route path="/credits" element={<Credits />} /> 
           <Route path="/reorder/:orderId" element={<Reorder />} />
           <Route

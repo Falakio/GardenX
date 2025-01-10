@@ -290,6 +290,9 @@ export default function SignUpForm() {
         type="password"
         value={formData.password}
         onChange={handleChange}
+        error={!!errors.password}
+        helperText={errors.password || "Password must be at least 6 characters"}
+        inputProps={{ minLength: 6 }}
       />
 
       <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>

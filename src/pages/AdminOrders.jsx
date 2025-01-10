@@ -903,6 +903,9 @@ export default function AdminOrders() {
                 </Grid>
               </Grid>
               <Typography variant="h6" sx={{ mt: 2 }}>
+                Grand Total: AED {selectedOrder.total_amount}
+              </Typography>
+              <Typography variant="h6" sx={{ mt: 2 }}>
                 Items:
               </Typography>
               <Table>

@@ -71,51 +71,54 @@ function AdminDashboard() {
     try {
       setLoading(true);
       setError(null);
-
+  
       // Fetch orders
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select("*")
         .order("created_at", { ascending: false });
-
+  
       if (ordersError) throw ordersError;
-
+  
+      // Filter delivered orders
+      const deliveredOrders = ordersData.filter(order => order.status === 'delivered');
+  
       // Process analytics data
-      const revenue = ordersData.reduce(
+      const revenue = deliveredOrders.reduce(
         (sum, order) => sum + Number(order.total_amount),
         0
       );
       const productCounts = {};
       const dailyRevenue = {};
-
-      ordersData.forEach((order) => {
+  
+      deliveredOrders.forEach((order) => {
         // Count products
         const items = order.items || [];
         items.forEach((item) => {
           productCounts[item.name] =
             (productCounts[item.name] || 0) + item.quantity;
         });
-
+  
         // Daily revenue
         const date = new Date(order.created_at).toLocaleDateString("en-GB");
         dailyRevenue[date] =
           (dailyRevenue[date] || 0) + Number(order.total_amount);
       });
-
+  
       // Format data for charts
       const popularProducts = Object.entries(productCounts)
         .map(([name, quantity]) => ({ name, quantity }))
         .sort((a, b) => b.quantity - a.quantity)
         .slice(0, 5);
-
+  
       const revenueByDay = Object.entries(dailyRevenue)
         .map(([date, amount]) => ({ date, amount }))
         .sort((a, b) => new Date(a.date) - new Date(b.date))
         .slice(-7);
-
+  
       setAnalytics({
         totalRevenue: revenue,
-        totalOrders: ordersData.length,
+        totalOrders: deliveredOrders.length,
         popularProducts,
         revenueByDay,
       });

@@ -60,7 +60,11 @@ function Login() {
     }
     const { data, error } = await sendMagicLink(email);
     if (error) {
-      setError('Failed to send magic link. Please try again.');
+      if (error.message === 'Signups not allowed for otp') {
+        setError('You do not have an account. Please sign up first.');
+      } else {
+        setError('Failed to send magic link. Please try again.');
+      }
       setMessage('');
     } else {
       setMessage('A magic link has been sent to your email.');
