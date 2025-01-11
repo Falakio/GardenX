@@ -199,6 +199,7 @@ export default function SignUpForm() {
         value={formData.phone}
         onChange={handleChange}
         error={!!errors.phone}
+        inputProps={{ maxLength: 10 }}
         helperText={errors.phone || "Format: 0512345678"}
       />
 
