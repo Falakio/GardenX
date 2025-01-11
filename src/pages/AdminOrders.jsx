@@ -353,7 +353,7 @@ function EarningsReportDialog({ open, onClose, orders }) {
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Parent Name</th>
+                  <th>Name</th>
                   <th>Items Ordered</th>
                   <th>Order Total</th>
                 </tr>
@@ -374,7 +374,7 @@ function EarningsReportDialog({ open, onClose, orders }) {
                         <td>${new Date(order.delivered_at).toLocaleDateString(
                           "en-GB"
                         )}</td>
-                        <td>${order.user_profiles?.first_name || "N/A"}</td>
+                        <td>${order.user_profiles?.firstName || "N/A"} ${order.user_profiles?.lastName || "N/A"}</td>
                         <td>
                           <ul class="items-list">
                             ${order.items
