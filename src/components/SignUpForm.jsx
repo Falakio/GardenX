@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -12,6 +12,7 @@ import {
   Select,
   MenuItem,
   InputLabel,
+  Snackbar,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { signUpWithEmail, createUserProfile } from "../services/supabase";
@@ -29,6 +30,33 @@ export default function SignUpForm() {
   });
 
   const [errors, setErrors] = useState({});
+  const [authError, setAuthError] = useState(null);
+  const [countdown, setCountdown] = useState(10);
+
+  useEffect(() => {
+    if (authError) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      const redirectTimer = setTimeout(() => {
+        console.log("Redirecting to login page...");
+        navigate("/login");
+        window.location.reload();
+      }, 10000);
+
+      return () => {
+        clearInterval(timer);
+        clearTimeout(redirectTimer);
+      };
+    }
+  }, [authError, navigate]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -96,7 +124,12 @@ export default function SignUpForm() {
       console.log("User signed up and profile created successfully");
       navigate("/shop");
     } catch (error) {
-      console.error("Error:", error);
+      if (error.message === "User already registered") {
+        setAuthError("User already exists. Redirecting to login in 10 seconds...");
+        setCountdown(10); // Reset countdown
+      } else {
+        console.error("Error:", error);
+      }
     }
   };
 
@@ -299,6 +332,16 @@ export default function SignUpForm() {
       <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
         Sign Up
       </Button>
+
+      {authError && (
+        <Snackbar
+          open={true}
+          autoHideDuration={10000}
+          onClose={() => setAuthError(null)}
+          message={`${authError} Redirecting to login in ${countdown} seconds...`}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        />
+      )}
     </Box>
   );
 }

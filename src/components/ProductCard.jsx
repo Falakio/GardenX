@@ -2,8 +2,6 @@ import { useState } from "react";
 import {
   Button,
   Card,
-  CardActions,
-  CardContent,
   CardMedia,
   IconButton,
   Typography,
