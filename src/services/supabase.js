@@ -13,10 +13,36 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.log("VITE_SUPABASE_ANON_KEY:", supabaseAnonKey ? "Set" : "Missing");
 }
 
-export const supabase = createClient(
-  supabaseUrl,
-  supabaseAnonKey
-);
+let supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export const switchDatabase = (schoolId) => {
+  let newSupabaseUrl;
+  let newSupabaseAnonKey;
+
+  // Update the Supabase URL and Anon Key based on the selected school
+  switch (schoolId) {
+    case 'school1':
+      newSupabaseUrl = import.meta.env.VITE_SUPABASE_URL_SCHOOL1;
+      newSupabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY_SCHOOL1;
+      break;
+    case 'school2':
+      newSupabaseUrl = import.meta.env.VITE_SUPABASE_URL_SCHOOL2;
+      newSupabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY_SCHOOL2;
+      break;
+    case 'school3':
+      newSupabaseUrl = import.meta.env.VITE_SUPABASE_URL_SCHOOL3;
+      newSupabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY_SCHOOL3;
+      break;
+    default:
+      newSupabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      newSupabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  }
+
+  // Recreate the Supabase client with the new configuration
+  supabase = createClient(newSupabaseUrl, newSupabaseAnonKey);
+};
+
+export { supabase };
 
 // User role helper
 export const isAdmin = (user) => {

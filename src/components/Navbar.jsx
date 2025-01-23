@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
   AppBar,
@@ -11,6 +11,9 @@ import {
   MenuItem,
   Toolbar,
   Typography,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import {
   ShoppingCart as ShoppingCartIcon,
@@ -18,7 +21,7 @@ import {
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
-import { signOut, isAdmin } from "../services/supabase";
+import { signOut, isAdmin, switchDatabase } from "../services/supabase";
 import logo from "../assets/logo-red.png";
 
 function Navbar() {
@@ -26,86 +29,51 @@ function Navbar() {
   const { user } = useAuth();
   const { itemCount } = useCart();
   const [anchorElNav, setAnchorElNav] = useState(null);
-  const [anchorElUser, setAnchorElUser] = useState(null);
+  const [selectedSchool, setSelectedSchool] = useState("school1");
+  const [schools, setSchools] = useState([]);
+
+  useEffect(() => {
+    // Fetch the list of schools from the server or a static list
+    setSchools([
+      { id: "school1", name: "Our Own Indian School" },
+      { id: "school2", name: "Our Own English High School" },
+      { id: "school3", name: "Our Own Al Ain" },
+    ]);
+  }, []);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
-  };
-
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
   };
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
 
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
+  const handleSchoolChange = (event) => {
+    const selectedSchoolId = event.target.value;
+    setSelectedSchool(selectedSchoolId);
+    switchDatabase(selectedSchoolId); // Switch the database context
+    console.log(`Switched to ${selectedSchoolId}`);
   };
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
-  };
-
-  const pages = [{ name: "Shop", path: "/shop" }];
-
-  const authenticatedPages = [
-    { name: "Orders", path: "/orders" },
-    { name: "Profile", path: "/profile" },
-  ];
-
-  const adminPages = [
-    { name: "Dashboard", path: "/admin" },
-    { name: "Products", path: "/admin/products" },
-    { name: "Orders", path: "/admin/orders" },
-  ];
-
-  const isAdminUser = user && isAdmin(user);
 
   return (
-    <AppBar
-      position="fixed"
-      sx={{
-        zIndex: (theme) => theme.zIndex.drawer + 1,
-      }}
-      elevation={1}
-    >
-      <Container maxWidth="lg">
+    <AppBar position="static">
+      <Container maxWidth="xl">
         <Toolbar disableGutters>
-          {/* Desktop Logo */}
-          <Box
-            component="img"
-            sx={{
-              height: 40,
-              width: 40,
-              mr: 1,
-              display: { xs: "none", md: "flex" },
-            }}
-            alt="OIS Organic Garden Logo"
-            src={logo}
-          />
           <Typography
             variant="h6"
+            noWrap
             component={RouterLink}
             to="/"
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontWeight: 700,
-              color: "inherit",
-              textDecoration: "none",
-            }}
+            sx={{ mr: 2, display: { xs: "none", md: "flex" } }}
           >
-            OIS Organic Garden
+            <img src={logo} alt="Logo" style={{ height: 40 }} />
           </Typography>
 
-          {/* Mobile Menu */}
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
-              aria-label="menu"
+              aria-label="account of current user"
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
@@ -131,136 +99,98 @@ function Navbar() {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {!isAdminUser &&
-                pages.map((page) => (
-                  <MenuItem
-                    key={page.name}
-                    onClick={handleCloseNavMenu}
-                    component={RouterLink}
-                    to={page.path}
-                  >
-                    <Typography textAlign="center">{page.name}</Typography>
-                  </MenuItem>
-                ))}
-              {!isAdminUser &&
-                user &&
-                authenticatedPages.map((page) => (
-                  <MenuItem
-                    key={page.name}
-                    onClick={handleCloseNavMenu}
-                    component={RouterLink}
-                    to={page.path}
-                  >
-                    <Typography textAlign="center">{page.name}</Typography>
-                  </MenuItem>
-                ))}
-              {isAdminUser &&
-                adminPages.map((page) => (
-                  <MenuItem
-                    key={page.name}
-                    onClick={handleCloseNavMenu}
-                    component={RouterLink}
-                    to={page.path}
-                  >
-                    <Typography textAlign="center">{page.name}</Typography>
-                  </MenuItem>
-                ))}
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Typography textAlign="center">Shop</Typography>
+              </MenuItem>
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Typography textAlign="center">Orders</Typography>
+              </MenuItem>
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Typography textAlign="center">Profile</Typography>
+              </MenuItem>
             </Menu>
           </Box>
 
-          {/* Mobile Logo */}
-          <Box
-            component="img"
-            sx={{
-              height: 35,
-              width: 35,
-              mr: 1,
-              display: { xs: "flex", md: "none" },
-            }}
-            alt="OIS Organic Garden Logo"
-            src={logo}
-          />
           <Typography
             variant="h6"
+            noWrap
             component={RouterLink}
             to="/"
-            sx={{
-              mr: 2,
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              fontWeight: 700,
-              color: "inherit",
-              textDecoration: "none",
-            }}
+            sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}
           >
-            OIS Organic Garden
+            <img src={logo} alt="Logo" style={{ height: 40 }} />
           </Typography>
 
-          {/* Desktop Menu */}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {!isAdminUser &&
-              pages.map((page) => (
-                <Button
-                  key={page.name}
-                  component={RouterLink}
-                  to={page.path}
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  {page.name}
-                </Button>
-              ))}
-            {!isAdminUser &&
-              user &&
-              authenticatedPages.map((page) => (
-                <Button
-                  key={page.name}
-                  component={RouterLink}
-                  to={page.path}
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  {page.name}
-                </Button>
-              ))}
-            {isAdminUser &&
-              adminPages.map((page) => (
-                <Button
-                  key={page.name}
-                  component={RouterLink}
-                  to={page.path}
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  {page.name}
-                </Button>
-              ))}
+            <Button
+              component={RouterLink}
+              to="/shop"
+              sx={{ my: 2, color: "white", display: "block" }}
+            >
+              Shop
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/orders"
+              sx={{ my: 2, color: "white", display: "block" }}
+            >
+              Orders
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/profile"
+              sx={{ my: 2, color: "white", display: "block" }}
+            >
+              Profile
+            </Button>
           </Box>
 
-          {/* Right Side Menu */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            {user && (
-              <Box sx={{ display: { xs: "none", md: "flex" } }}>
-                <IconButton
-                  component={RouterLink}
-                  to="/cart"
-                  size="large"
-                  aria-label="show cart items"
-                  color="inherit"
-                >
-                  <Badge badgeContent={itemCount} color="error">
-                    <ShoppingCartIcon />
-                  </Badge>
-                </IconButton>
-              </Box>
-            )}
+          <Box sx={{ flexGrow: 0 }}>
+            <FormControl variant="outlined" sx={{ minWidth: 120, mr: 2 }}>
+              <InputLabel id="school-select-label">School</InputLabel>
+              <Select
+                labelId="school-select-label"
+                id="school-select"
+                value={selectedSchool}
+                onChange={handleSchoolChange}
+                label="School"
+              >
+                {schools.map((school) => (
+                  <MenuItem key={school.id} value={school.id}>
+                    {school.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <IconButton
+              component={RouterLink}
+              to="/cart"
+              color="inherit"
+              sx={{ mr: 2 }}
+            >
+              <Badge badgeContent={itemCount} color="secondary">
+                <ShoppingCartIcon />
+              </Badge>
+            </IconButton>
+
             {user ? (
-              <Button onClick={handleSignOut} color="inherit">
-                Sign Out
+              <Button
+                color="inherit"
+                onClick={() => {
+                  signOut();
+                  navigate("/login");
+                }}
+              >
+                Logout
               </Button>
             ) : (
-              <Button component={RouterLink} to="/login" color="inherit">
-                Sign In
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/login"
+              >
+                Login
               </Button>
             )}
           </Box>
