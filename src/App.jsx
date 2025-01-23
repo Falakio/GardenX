@@ -10,6 +10,7 @@ import Shop from "./pages/Shop";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminProducts from "./pages/AdminProducts";
+import AdminManualEntry from "./pages/AdminManualEntry";
 import AdminOrders from "./pages/AdminOrders";
 import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
@@ -99,6 +100,14 @@ function MainContent() {
             element={
               <ProtectedRoute adminOnly>
                 <AdminOrders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/manual-entry"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminManualEntry />
               </ProtectedRoute>
             }
           />
