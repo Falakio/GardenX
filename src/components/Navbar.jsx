@@ -27,7 +27,7 @@ import {
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
-import { signOut, isAdmin, switchDatabase } from "../services/supabase";
+import { signOut, isAdmin } from "../services/supabase";
 import logo2 from "../assets/logo-red.png";
 import logo from "../assets/logo.png";
 import "../index.css"; // Import the global styles
@@ -37,29 +37,38 @@ function Navbar() {
   const { user } = useAuth();
   const { itemCount } = useCart();
   const [anchorElNav, setAnchorElNav] = useState(null);
-  const [selectedSchool, setSelectedSchool] = useState("school1");
+  const [selectedSchool, setSelectedSchool] = useState(localStorage.getItem('selectedSchool') || "school1");
   const [schools, setSchools] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     // Fetch the list of schools from the server or a static list
-    setSchools([
+    const fetchedSchools = [
       { id: "school1", name: "Our Own Indian School" },
       { id: "school2", name: "Our Own English High School" },
       { id: "school3", name: "Our Own Al Ain" },
-    ]);
+    ];
+    setSchools(fetchedSchools);
+
+    // Ensure the selectedSchool is valid
+    if (!fetchedSchools.some(school => school.id === selectedSchool)) {
+      setSelectedSchool(fetchedSchools[0].id);
+      localStorage.setItem('selectedSchool', fetchedSchools[0].id);
+    }
   }, []);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleSchoolChange = (event) => {
+  const handleSchoolChange = async (event) => {
     const selectedSchoolId = event.target.value;
     setSelectedSchool(selectedSchoolId);
-    switchDatabase(selectedSchoolId); // Switch the database context
+    localStorage.setItem('selectedSchool', selectedSchoolId);
     console.log(`Switched to ${selectedSchoolId}`);
+    await signOut(); // Log out the user
+    window.location.reload(); // Refresh the page
   };
 
   const handleSearchChange = (event) => {
@@ -161,6 +170,64 @@ function Navbar() {
             <img src={logo} alt="Logo" style={{ height: 40 }} />
           </Typography>
 
+          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+            <IconButton
+              size="large"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleOpenNavMenu}
+              color="inherit"
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{
+                display: { xs: "block", md: "none" },
+              }}
+            >
+              {isAdmin(user) ? (
+                <>
+                  <MenuItem onClick={handleCloseNavMenu}>
+                    <Typography textAlign="center" component={RouterLink} to="/admin">Dashboard</Typography>
+                  </MenuItem>
+                  <MenuItem onClick={handleCloseNavMenu}>
+                    <Typography textAlign="center" component={RouterLink} to="/admin/products">Products</Typography>
+                  </MenuItem>
+                  <MenuItem onClick={handleCloseNavMenu}>
+                    <Typography textAlign="center" component={RouterLink} to="/admin/orders">Orders</Typography>
+                  </MenuItem>
+                  <MenuItem onClick={handleCloseNavMenu}>
+                    <Typography textAlign="center" component={RouterLink} to="/admin/manual-entry">Manual Entry</Typography>
+                  </MenuItem>
+                </>
+              ) : (
+                <>
+                  <MenuItem onClick={handleCloseNavMenu}>
+                    <Typography textAlign="center" component={RouterLink} to="/shop">Shop</Typography>
+                  </MenuItem>
+                  <MenuItem onClick={handleCloseNavMenu}>
+                    <Typography textAlign="center" component={RouterLink} to="/orders">Orders</Typography>
+                  </MenuItem>
+                  <MenuItem onClick={handleCloseNavMenu}>
+                    <Typography textAlign="center" component={RouterLink} to="/profile">Profile</Typography>
+                  </MenuItem>
+                </>
+              )}
+            </Menu>
           <Box
             sx={{
               flexGrow: 1,
@@ -186,6 +253,73 @@ function Navbar() {
             </Drawer>
           </Box>
 
+          <Typography
+            variant="h6"
+            noWrap
+            component={RouterLink}
+            to="/"
+            sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}
+          >
+            <img src={logo} alt="Logo" style={{ height: 40 }} />
+          </Typography>
+
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+            {isAdmin(user) ? (
+              <>
+                <Button
+                  component={RouterLink}
+                  to="/admin"
+                  sx={{ my: 2, color: "white", display: "block" }}
+                >
+                  Dashboard
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/admin/products"
+                  sx={{ my: 2, color: "white", display: "block" }}
+                >
+                  Products
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/admin/orders"
+                  sx={{ my: 2, color: "white", display: "block" }}
+                >
+                  Orders
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/admin/manual-entry"
+                  sx={{ my: 2, color: "white", display: "block" }}
+                >
+                  Manual Entry
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  component={RouterLink}
+                  to="/shop"
+                  sx={{ my: 2, color: "white", display: "block" }}
+                >
+                  Shop
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/orders"
+                  sx={{ my: 2, color: "white", display: "block" }}
+                >
+                  Orders
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/profile"
+                  sx={{ my: 2, color: "white", display: "block" }}
+                >
+                  Profile
+                </Button>
+              </>
+            )}
           <Box
             sx={{
               flexGrow: 1,
