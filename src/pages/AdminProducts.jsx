@@ -272,6 +272,12 @@ function AdminProducts() {
         sx={{
           mt: { xs: 4, sm: 8 },
           p: { xs: 2, sm: 4 },
+          background: "rgba(255, 255, 255, 0.1)",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: "15px",
+          color: "white",
         }}
       >
         <Box
@@ -280,6 +286,7 @@ function AdminProducts() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+          
           }}
         >
           <Typography variant="h4">Manage Products</Typography>
@@ -293,7 +300,12 @@ function AdminProducts() {
           </Button>
         </Box>
 
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{background: "rgba(255, 255, 255, 0.5)",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: "15px",
+          color: "white"}}>
           <Table>
             <TableHead>
               <TableRow>
@@ -339,7 +351,7 @@ function AdminProducts() {
         </TableContainer>
 
         {/* Product Dialog */}
-        <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+        <Dialog open={dialogOpen} onClose={handleCloseDialog} >
           <DialogTitle>
             {editingProduct ? "Edit Product" : "New Product"}
           </DialogTitle>

@@ -125,7 +125,9 @@ export default function SignUpForm() {
       navigate("/shop");
     } catch (error) {
       if (error.message === "User already registered") {
-        setAuthError("User already exists. Redirecting to login in 10 seconds...");
+        setAuthError(
+          "User already exists. Redirecting to login in 10 seconds..."
+        );
         setCountdown(10); // Reset countdown
       } else {
         console.error("Error:", error);
@@ -169,10 +171,12 @@ export default function SignUpForm() {
     <Box
       component="form"
       onSubmit={handleSubmit}
-      sx={{ maxWidth: 600, mx: "auto", p: 3 }}
+      sx={{ maxWidth: 600, mx: "auto", p: 3, color: "#fff" }}
     >
-      <FormControl component="fieldset" margin="normal">
-        <FormLabel component="legend">Role</FormLabel>
+      <FormControl component="fieldset" margin="normal" sx={{ color: "#fff" }}>
+        <FormLabel component="legend" sx={{ color: "#fff" }}>
+          Role
+        </FormLabel>
         <RadioGroup
           row
           name="role"
@@ -180,12 +184,20 @@ export default function SignUpForm() {
           onChange={handleChange}
           required
         >
-          <FormControlLabel value="parent" control={<Radio />} label="Parent" />
-          <FormControlLabel value="staff" control={<Radio />} label="Staff" />
+          <FormControlLabel
+            value="parent"
+            control={<Radio sx={{ color: "#fff", '&.Mui-checked': { color: "#fff" } }} />}
+            label={<Typography sx={{ color: "#fff" }}>Parent</Typography>}
+          />
+          <FormControlLabel
+            value="staff"
+            control={<Radio sx={{ color: "#fff", '&.Mui-checked': { color: "#fff" } }} />}
+            label={<Typography sx={{ color: "#fff" }}>Staff</Typography>}
+          />
           <FormControlLabel
             value="visitor"
-            control={<Radio />}
-            label="Visitor"
+            control={<Radio sx={{ color: "#fff", '&.Mui-checked': { color: "#fff" } }} />}
+            label={<Typography sx={{ color: "#fff" }}>Visitor</Typography>}
           />
         </RadioGroup>
       </FormControl>
@@ -198,6 +210,8 @@ export default function SignUpForm() {
         name="firstName"
         value={formData.firstName}
         onChange={handleChange}
+        InputLabelProps={{ style: { color: "#fff" } }}
+        InputProps={{ style: { color: "#fff" } }}
       />
 
       <TextField
@@ -208,6 +222,8 @@ export default function SignUpForm() {
         name="lastName"
         value={formData.lastName}
         onChange={handleChange}
+        InputLabelProps={{ style: { color: "#fff" } }}
+        InputProps={{ style: { color: "#fff" } }}
       />
 
       <TextField
@@ -221,6 +237,9 @@ export default function SignUpForm() {
         onChange={handleChange}
         error={!!errors.email}
         helperText={errors.email}
+        FormHelperTextProps={{ style: { color: "lightgray" } }}
+        InputLabelProps={{ style: { color: "#fff" } }}
+        InputProps={{ style: { color: "#fff" } }}
       />
 
       <TextField
@@ -234,11 +253,14 @@ export default function SignUpForm() {
         error={!!errors.phone}
         inputProps={{ maxLength: 10 }}
         helperText={errors.phone || "Format: 0512345678"}
+        FormHelperTextProps={{ style: { color: "lightgray" } }}
+        InputLabelProps={{ style: { color: "#fff" } }}
+        InputProps={{ style: { color: "#fff" } }}
       />
 
       {formData.role === "parent" && (
         <Box sx={{ mt: 2 }}>
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" gutterBottom sx={{ color: "#fff" }}>
             Student Information
           </Typography>
           <TextField
@@ -248,6 +270,8 @@ export default function SignUpForm() {
             label="Student First Name"
             name="details.student_first_name"
             onChange={handleChange}
+            InputLabelProps={{ style: { color: "#fff" } }}
+            InputProps={{ style: { color: "#fff" } }}
           />
           <TextField
             fullWidth
@@ -256,14 +280,17 @@ export default function SignUpForm() {
             label="Student Last Name"
             name="details.student_last_name"
             onChange={handleChange}
+            InputLabelProps={{ style: { color: "#fff" } }}
+            InputProps={{ style: { color: "#fff" } }}
           />
           <FormControl fullWidth margin="normal" required>
-            <InputLabel>Class</InputLabel>
+            <InputLabel sx={{ color: "#fff" }}>Class</InputLabel>
             <Select
               value={formData.details.student_class || ""}
               name="details.student_class"
               onChange={handleChange}
               label="Class"
+              sx={{ color: "#fff" }}
             >
               <MenuItem value="KG1">KG1</MenuItem>
               <MenuItem value="KG2">KG2</MenuItem>
@@ -286,6 +313,9 @@ export default function SignUpForm() {
             error={!!errors.student_section}
             helperText={errors.student_section || "Single capital letter"}
             inputProps={{ maxLength: 1 }}
+            FormHelperTextProps={{ style: { color: "lightgray" } }}
+            InputLabelProps={{ style: { color: "#fff" } }}
+            InputProps={{ style: { color: "#fff" } }}
           />
           <TextField
             fullWidth
@@ -297,6 +327,9 @@ export default function SignUpForm() {
             error={!!errors.student_gems_id}
             helperText={errors.student_gems_id}
             inputProps={{ maxLength: 6 }}
+            FormHelperTextProps={{ style: { color: "lightgray" } }}
+            InputLabelProps={{ style: { color: "#fff" } }}
+            InputProps={{ style: { color: "#fff" } }}
           />
         </Box>
       )}
@@ -312,6 +345,9 @@ export default function SignUpForm() {
           error={!!errors.staff_gems_id}
           helperText={errors.staff_gems_id || "Must be exactly 8 digits"}
           inputProps={{ maxLength: 8 }}
+          FormHelperTextProps={{ style: { color: "lightgray" } }}
+          InputLabelProps={{ style: { color: "#fff" } }}
+          InputProps={{ style: { color: "#fff" } }}
         />
       )}
 
@@ -327,6 +363,9 @@ export default function SignUpForm() {
         error={!!errors.password}
         helperText={errors.password || "Password must be at least 6 characters"}
         inputProps={{ minLength: 6 }}
+        FormHelperTextProps={{ style: { color: "lightgray" } }}
+        InputLabelProps={{ style: { color: "#fff" } }}
+        InputProps={{ style: { color: "#fff" } }}
       />
 
       <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>

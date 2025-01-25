@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt', 'icon.png', 'apple-touch-icon.png'],
       name: "GardenX",
       short_name: "GardenX",
       theme_color: "#2c604a",
@@ -19,7 +19,7 @@ export default defineConfig({
       orientation: "portrait",
       icons: [
         {
-          "src": "apple-touch-icon.png",
+          "src": "icon.png",
           "sizes": "1024x1024"
         }
       ],

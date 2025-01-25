@@ -36,22 +36,24 @@ function Navbar() {
   const { user } = useAuth();
   const { itemCount } = useCart();
   const [anchorElNav, setAnchorElNav] = useState(null);
-  const [selectedSchool, setSelectedSchool] = useState(localStorage.getItem('selectedSchool') || "school1");
+  const [selectedSchool, setSelectedSchool] = useState(
+    localStorage.getItem("selectedSchool") || "school1"
+  );
   const [schools, setSchools] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md')); // Check if the screen size is mobile
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("md")); // Check if the screen size is mobile
 
   useEffect(() => {
     const fetchSchools = async () => {
       try {
-        const response = await fetch('/schools.json');
+        const response = await fetch("/schools.json");
         const data = await response.json();
         setSchools(data);
 
-        if (!data.some(school => school.id === selectedSchool)) {
+        if (!data.some((school) => school.id === selectedSchool)) {
           setSelectedSchool(data[0].id);
-          localStorage.setItem('selectedSchool', data[0].id);
+          localStorage.setItem("selectedSchool", data[0].id);
         }
       } catch (error) {
         console.error("Error fetching schools:", error);
@@ -68,7 +70,7 @@ function Navbar() {
   const handleSchoolChange = async (event) => {
     const selectedSchoolId = event.target.value;
     setSelectedSchool(selectedSchoolId);
-    localStorage.setItem('selectedSchool', selectedSchoolId);
+    localStorage.setItem("selectedSchool", selectedSchoolId);
     console.log(`Switched to ${selectedSchoolId}`);
     await signOut();
     window.location.reload();
@@ -86,27 +88,51 @@ function Navbar() {
   };
 
   const drawer = (
-    <Box sx={{ width: 250 }} onClick={handleDrawerToggle}>
+    <Box sx={{ width: 250, background: "#ffd079", height: "100%" }} onClick={handleDrawerToggle}>
       <Typography variant="h6" sx={{ my: 2, textAlign: "center" }}>
         <img src={logo} alt="Logo" style={{ height: 40 }} />
       </Typography>
       <Divider />
       <List>
-        <ListItem button component={RouterLink} to="/shop">
-          <ListItemText primary="Shop" />
-        </ListItem>
-        <ListItem button component={RouterLink} to="/orders">
-          <ListItemText primary="Orders" />
-        </ListItem>
-        <ListItem button component={RouterLink} to="/profile">
-          <ListItemText primary="Profile" />
-        </ListItem>
-        <ListItem button component={RouterLink} to="/credits">
-          <ListItemText primary="Credits" />
-        </ListItem>
+        {!isAdmin(user) && user && (
+          <ListItem button component={RouterLink} to="/shop">
+            <ListItemText primary="Shop" />
+          </ListItem>
+        )}
+        {!isAdmin(user) && user && (
+          <ListItem button component={RouterLink} to="/orders">
+            <ListItemText primary="Orders" />
+          </ListItem>
+        )}
+        {!isAdmin(user) && user && (
+          <ListItem button component={RouterLink} to="/profile">
+            <ListItemText primary="Profile" />
+          </ListItem>
+        )}
+        {isAdmin(user) && user && (
+          <ListItem button component={RouterLink} to="/admin">
+            <ListItemText primary="Dashboard" />
+          </ListItem>
+        )}
+        {isAdmin(user) && user && (
+          <ListItem button component={RouterLink} to="/admin/products">
+            <ListItemText primary="Products" />
+          </ListItem>
+        )}
+        {isAdmin(user) && user && (
+          <ListItem button component={RouterLink} to="/admin/orders">
+            <ListItemText primary="Orders" />
+          </ListItem>
+        )}
+        {isAdmin(user) && user && (
+          <ListItem button component={RouterLink} to="/admin/manual-entry">
+            <ListItemText primary="New Order" />
+          </ListItem>
+        )}
+
         <Divider />
         <ListItem>
-          <FormControl sx={{ minWidth: 120, width: "100%"}}>
+          <FormControl sx={{ minWidth: 120, width: "100%" }}>
             <InputLabel id="school-select-label">School</InputLabel>
             <Select
               labelId="school-select-label"
@@ -123,12 +149,14 @@ function Navbar() {
             </Select>
           </FormControl>
         </ListItem>
-        <ListItem button component={RouterLink} to="/cart">
-          <Badge badgeContent={itemCount} color="secondary">
-            <ShoppingCartIcon />
-          </Badge>
-          <ListItemText primary="Cart" />
-        </ListItem>
+        {!isAdmin(user) && user && (
+          <ListItem button component={RouterLink} to="/cart">
+            <Badge badgeContent={itemCount} color="secondary" sx={{ mr: 1 }}>
+              <ShoppingCartIcon />
+            </Badge>
+            <ListItemText primary="Cart" />
+          </ListItem>
+        )}
         <Divider />
         {user ? (
           <ListItem
@@ -146,6 +174,18 @@ function Navbar() {
           </ListItem>
         )}
       </List>
+
+      <Box sx={{ flexGrow: 1 }} />
+      <Typography variant="body2" sx={{ textAlign: "center", mb: 2 }}>
+        Copyright &copy; 2025 GardenX
+
+      </Typography>
+      <Typography variant="body2" sx={{ textAlign: "center", mb: 2 }}>
+      All Rights Reserved.
+      </Typography>
+      <Typography variant="body2" sx={{ textAlign: "center", mb: 2 }}>
+        Al Falak Network
+      </Typography>
     </Box>
   );
 
@@ -180,14 +220,19 @@ function Navbar() {
               color: "white",
             }}
           >
-            <Typography variant="h6" sx={{pr: 2, pt: 1}}>
-              <img src={logo} alt="Logo" style={{ height: 55,  color: "white"}} />
+            <Typography variant="h6" sx={{ pr: 2, pt: 1 }}>
+              <img
+                src={logo}
+                alt="Logo"
+                style={{ height: 55, color: "white" }}
+              />
             </Typography>
 
             <Drawer
               anchor="left"
               open={mobileOpen}
               onClose={handleDrawerToggle}
+              
               ModalProps={
                 {
                   // Better open performance on mobile.
@@ -205,42 +250,107 @@ function Navbar() {
               color: "white",
             }}
           >
-            <Button
-              component={RouterLink}
-              to="/shop"
-              sx={{
-                my: 2,
-                color: "white",
-                display: "block",
-                backgroundColor: "#2c604a",
-              }}
-            >
-              Shop
-            </Button>
-            <Button
-              component={RouterLink}
-              to="/orders"
-              sx={{
-                my: 2,
-                color: "white",
-                display: "block",
-                backgroundColor: "#2c604a",
-              }}
-            >
-              Orders
-            </Button>
-            <Button
-              component={RouterLink}
-              to="/profile"
-              sx={{
-                my: 2,
-                color: "white",
-                display: "block",
-                backgroundColor: "#2c604a",
-              }}
-            >
-              Profile
-            </Button>
+            {!isAdmin(user) && user && (
+              <Button
+                component={RouterLink}
+                to="/shop"
+                sx={{
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                  backgroundColor: "#2c604a",
+                }}
+              >
+                Shop
+              </Button>
+            )}
+
+            {!isAdmin(user) && user && (
+              <Button
+                component={RouterLink}
+                to="/orders"
+                sx={{
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                  backgroundColor: "#2c604a",
+                }}
+              >
+                Orders
+              </Button>
+            )}
+
+            {!isAdmin(user) && user && (
+              <Button
+                component={RouterLink}
+                to="/profile"
+                sx={{
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                  backgroundColor: "#2c604a",
+                }}
+              >
+                Profile
+              </Button>
+            )}
+            {isAdmin(user) && (
+              <Button
+                component={RouterLink}
+                to="/admin"
+                sx={{
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                  backgroundColor: "#2c604a",
+                }}
+              >
+                Dashboard
+              </Button>
+            )}
+
+            {isAdmin(user) && (
+              <Button
+                component={RouterLink}
+                to="/admin/products"
+                sx={{
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                  backgroundColor: "#2c604a",
+                }}
+              >
+                Products
+              </Button>
+            )}
+            {isAdmin(user) && (
+              <Button
+                component={RouterLink}
+                to="/admin/orders"
+                sx={{
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                  backgroundColor: "#2c604a",
+                }}
+              >
+                Orders
+              </Button>
+            )}
+            {isAdmin(user) && (
+              <Button
+                component={RouterLink}
+                to="/admin/manual-entry"
+                sx={{
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                  backgroundColor: "#2c604a",
+                }}
+              >
+                New Order
+              </Button>
+            )}
           </Box>
 
           <Box
@@ -330,16 +440,18 @@ function Navbar() {
               </Select>
             </FormControl>
 
-            <IconButton
-              component={RouterLink}
-              to="/cart"
-              color="inherit"
-              sx={{ mr: 2, color: "white" }}
-            >
-              <Badge badgeContent={itemCount} color="secondary">
-                <ShoppingCartIcon />
-              </Badge>
-            </IconButton>
+            {!isAdmin(user) && user && (
+              <IconButton
+                component={RouterLink}
+                to="/cart"
+                color="inherit"
+                sx={{ mr: 2, color: "white" }}
+              >
+                <Badge badgeContent={itemCount} color="secondary">
+                  <ShoppingCartIcon />
+                </Badge>
+              </IconButton>
+            )}
 
             {user ? (
               <Button
