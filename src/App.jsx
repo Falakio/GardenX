@@ -7,6 +7,7 @@ import theme from "./theme";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
+import { isAdmin } from "./services/supabase";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminProducts from "./pages/AdminProducts";
@@ -25,8 +26,10 @@ import Reorder from "./pages/Reorder";
 import { useState, useEffect } from "react";
 import SplashScreen from "./components/SplashScreen"; // Import the SplashScreen component
 import "./index.css"; // Import the global styles
+import { useAuth } from "./contexts/AuthContext";
 
 function MainContent() {
+  const { user } = useAuth();
   const { itemCount } = useCart();
   const location = useLocation();
 
@@ -118,7 +121,11 @@ function MainContent() {
           />
         </Routes>
       </Container>
-      <Box
+      
+      
+      
+    {!isAdmin(user) && (
+        <Box
         sx={{ 
           display: { xs: "block", md: "none" },
           position: "fixed",
@@ -204,6 +211,10 @@ function MainContent() {
           </Fab>
         </Box>
       </Box>
+  
+    )}
+
+
     </div>
   );
 }
