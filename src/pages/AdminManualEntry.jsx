@@ -69,6 +69,8 @@ export default function AdminManualEntry() {
           price: item.price,
         })),
         status: "delivered",
+        mode: "pickup",
+        delivered_at: new Date().toISOString(),
       };
 
       const { data, error } = await createOrder(orderData);

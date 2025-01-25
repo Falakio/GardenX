@@ -21,7 +21,7 @@ import {
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
-import { signOut, isAdmin, switchDatabase } from "../services/supabase";
+import { signOut, isAdmin } from "../services/supabase";
 import logo from "../assets/logo-red.png";
 
 function Navbar() {
@@ -47,10 +47,6 @@ function Navbar() {
       localStorage.setItem('selectedSchool', fetchedSchools[0].id);
     }
   }, []);
-
-  useEffect(() => {
-    switchDatabase(selectedSchool);
-  }, [selectedSchool]);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);

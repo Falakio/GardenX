@@ -1,47 +1,41 @@
 import { createClient } from "@supabase/supabase-js";
 import { sendNotification } from './notifications';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// if (!supabaseUrl || !supabaseAnonKey) {
+//   console.error(
+//     "Missing Supabase environment variables. Please check your .env file."
+//   );
+//   console.log("Required variables:");
+//   console.log("VITE_SUPABASE_URL:", supabaseUrl ? "Set" : "Missing");
+//   console.log("VITE_SUPABASE_ANON_KEY:", supabaseAnonKey ? "Set" : "Missing");
+// }
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error(
-    "Missing Supabase environment variables. Please check your .env file."
-  );
-  console.log("Required variables:");
-  console.log("VITE_SUPABASE_URL:", supabaseUrl ? "Set" : "Missing");
-  console.log("VITE_SUPABASE_ANON_KEY:", supabaseAnonKey ? "Set" : "Missing");
-}
-
-let supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export const switchDatabase = (schoolId) => {
-  let newSupabaseUrl;
-  let newSupabaseAnonKey;
-
-  // Update the Supabase URL and Anon Key based on the selected school
+const getSupabaseConfig = (schoolId) => {
   switch (schoolId) {
     case 'school1':
-      newSupabaseUrl = import.meta.env.VITE_SUPABASE_URL_SCHOOL1;
-      newSupabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY_SCHOOL1;
-      break;
+      return {
+        url: import.meta.env.VITE_SUPABASE_URL_SCHOOL1,
+        anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY_SCHOOL1,
+      };
     case 'school2':
-      newSupabaseUrl = import.meta.env.VITE_SUPABASE_URL_SCHOOL2;
-      newSupabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY_SCHOOL2;
-      break;
+      return {
+        url: import.meta.env.VITE_SUPABASE_URL_SCHOOL2,
+        anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY_SCHOOL2,
+      };
     case 'school3':
-      newSupabaseUrl = import.meta.env.VITE_SUPABASE_URL_SCHOOL3;
-      newSupabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY_SCHOOL3;
-      break;
+      return {
+        url: import.meta.env.VITE_SUPABASE_URL_SCHOOL3,
+        anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY_SCHOOL3,
+      };
     default:
-      newSupabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      newSupabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      throw new Error('Invalid schoolId');
   }
-
-  // Recreate the Supabase client with the new configuration
-  supabase = createClient(newSupabaseUrl, newSupabaseAnonKey);
 };
 
+const schoolId = localStorage.getItem('selectedSchool') || 'school1';
+
+const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseConfig(schoolId);
+let supabase = createClient(supabaseUrl, supabaseAnonKey);
 export { supabase };
 
 // User role helper
