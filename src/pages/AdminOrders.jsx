@@ -30,7 +30,7 @@ import {
 } from "@mui/material";
 
 import { Visibility, Assessment } from "@mui/icons-material";
-// import { sendEmail } from '../services/smtp';
+import { sendEmail } from '../services/smtp';
 import { getAdminOrders, getUserProfile, getOrderInfo, supabase } from "../services/supabase";
 
 const capitalizeFirstLetter = (string) => {
@@ -667,12 +667,12 @@ export default function AdminOrders() {
       const emailHtml = generateStatusEmailHtml(profile, cartItems, total, orderMode, orderId, newStatus);
   
       // Send email notification
-      // await sendEmail(profile.email, `Your Order has been ${newStatus}`, 'Your order status has been updated.', emailHtml);
+      await sendEmail(profile.email, `Your Order has been ${newStatus}`, 'Your order status has been updated.', emailHtml);
   
       setSnackbar({
         open: true,
         message: "Order status updated successfully",
-        severity: "success",
+        severity: "success", 
       });
     } catch (error) {
       console.error("Failed to update order status:", error);
