@@ -1,4 +1,3 @@
-import "../index.css";
 import { useState, useEffect } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
@@ -20,7 +19,8 @@ import {
   ListItem,
   ListItemText,
   Divider,
-  TextField, // Import TextField component
+  TextField,
+  useMediaQuery, // Import useMediaQuery hook
 } from "@mui/material";
 import {
   ShoppingCart as ShoppingCartIcon,
@@ -29,7 +29,6 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { signOut, isAdmin } from "../services/supabase";
-import logo2 from "../assets/logo-red.png";
 import logo from "../assets/logo.png";
 
 function Navbar() {
@@ -41,6 +40,7 @@ function Navbar() {
   const [schools, setSchools] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md')); // Check if the screen size is mobile
 
   useEffect(() => {
     const fetchSchools = async () => {
@@ -63,14 +63,6 @@ function Navbar() {
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
-  };
-
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
   };
 
   const handleSchoolChange = async (event) => {
@@ -100,7 +92,7 @@ function Navbar() {
       </Typography>
       <Divider />
       <List>
-        <ListItem button component={RouterLink} to="/">
+        <ListItem button component={RouterLink} to="/shop">
           <ListItemText primary="Shop" />
         </ListItem>
         <ListItem button component={RouterLink} to="/orders">
@@ -114,7 +106,7 @@ function Navbar() {
         </ListItem>
         <Divider />
         <ListItem>
-          <FormControl sx={{ minWidth: 120, width: "100%" }}>
+          <FormControl sx={{ minWidth: 120, width: "100%"}}>
             <InputLabel id="school-select-label">School</InputLabel>
             <Select
               labelId="school-select-label"
@@ -181,129 +173,74 @@ function Navbar() {
             <img src={logo} alt="Logo" style={{ height: 40 }} />
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { xs: "flex", md: "none" },
+              color: "white",
+            }}
+          >
+            <Typography variant="h6" sx={{pr: 2, pt: 1}}>
+              <img src={logo} alt="Logo" style={{ height: 55,  color: "white"}} />
+            </Typography>
+
+            <Drawer
+              anchor="left"
+              open={mobileOpen}
+              onClose={handleDrawerToggle}
+              ModalProps={
+                {
+                  // Better open performance on mobile.
+                }
+              }
             >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
-            >
-              {isAdmin(user) ? [
-                <MenuItem key="dashboard" onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center" component={RouterLink} to="/admin/dashboard">Dashboard</Typography>
-                </MenuItem>,
-                <MenuItem key="products" onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center" component={RouterLink} to="/admin/products">Products</Typography>
-                </MenuItem>,
-                <MenuItem key="orders" onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center" component={RouterLink} to="/admin/orders">Orders</Typography>
-                </MenuItem>,
-                <MenuItem key="manual-entry" onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center" component={RouterLink} to="/admin/manual-entry">Manual Entry</Typography>
-                </MenuItem>
-              ] : [
-                <MenuItem key="shop" onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center" component={RouterLink} to="/">Shop</Typography>
-                </MenuItem>,
-                <MenuItem key="orders" onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center" component={RouterLink} to="/orders">Orders</Typography>
-                </MenuItem>,
-                <MenuItem key="profile" onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center" component={RouterLink} to="/profile">Profile</Typography>
-                </MenuItem>
-              ]}
-            </Menu>
+              {drawer}
+            </Drawer>
           </Box>
 
-          <Typography
-            variant="h6"
-            noWrap
-            component={RouterLink}
-            to="/"
-            sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { xs: "none", md: "flex" },
+              color: "white",
+            }}
           >
-            <img src={logo} alt="Logo" style={{ height: 40 }} />
-          </Typography>
-
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {isAdmin(user) ? (
-              <>
-                <Button
-                  component={RouterLink}
-                  to="/admin/dashboard"
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  Dashboard
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to="/admin/products"
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  Products
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to="/admin/orders"
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  Orders
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to="/admin/manual-entry"
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  Manual Entry
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  component={RouterLink}
-                  to="/"
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  Shop
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to="/orders"
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  Orders
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to="/profile"
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  Profile
-                </Button>
-              </>
-            )}
+            <Button
+              component={RouterLink}
+              to="/shop"
+              sx={{
+                my: 2,
+                color: "white",
+                display: "block",
+                backgroundColor: "#2c604a",
+              }}
+            >
+              Shop
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/orders"
+              sx={{
+                my: 2,
+                color: "white",
+                display: "block",
+                backgroundColor: "#2c604a",
+              }}
+            >
+              Orders
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/profile"
+              sx={{
+                my: 2,
+                color: "white",
+                display: "block",
+                backgroundColor: "#2c604a",
+              }}
+            >
+              Profile
+            </Button>
           </Box>
 
           <Box
@@ -343,15 +280,17 @@ function Navbar() {
             />
           </Box>
 
-          <IconButton
-            size="large"
-            aria-label="open drawer"
-            onClick={handleDrawerToggle}
-            color="inherit"
-            sx={{ mr: 0, color: "white", marginTop: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
+          {isMobile && (
+            <IconButton
+              size="large"
+              aria-label="open drawer"
+              onClick={handleDrawerToggle}
+              color="inherit"
+              sx={{ mr: 0, color: "white", marginTop: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
 
           <Box
             alignItems="center"
@@ -365,6 +304,7 @@ function Navbar() {
                 mr: 2,
                 backgroundColor: "#2c604a",
                 color: "white",
+                mt: 1,
               }}
             >
               <InputLabel id="school-select-label" sx={{ color: "white" }}>
