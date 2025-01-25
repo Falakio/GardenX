@@ -23,6 +23,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.1.0",
     "recharts": "^2.13.3",
+    "use-debounce": "^10.0.4",
     "vite-plugin-pwa": "^0.21.1"
   },
   "devDependencies": {

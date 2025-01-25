@@ -8,30 +8,28 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
-      manifest: {
-        name: 'OIS Organic Garden',
-        short_name: 'OIS Garden',
-        description: 'An initiative to promote organic farming and healthy living by GEMS OIS.',
-        theme_color: '#ffffff',
-        icons: [
-          {
-            src: 'pwa-192x192.jpeg',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: 'pwa-512x512.jpeg',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-          {
-            src: 'pwa-512x512.jpeg',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable',
-          },
-        ],
-      },
+      name: "GardenX",
+      short_name: "GardenX",
+      theme_color: "#2c604a",
+      background_color: "#2c604a",
+      display: "standalone",
+      scope: "/",
+      start_url: "/",
+      description: "GardenX is a platform for organic farming and healthy living.",
+      orientation: "portrait",
+      icons: [
+        {
+          "src": "apple-touch-icon.png",
+          "sizes": "1024x1024"
+        }
+      ],
+      display_override: [
+        "standalone",
+        "fullscreen",
+        "minimal-ui"
+      ],
+      lang: "en",
+      dir: "ltr"
     }),
   ],
   server: {

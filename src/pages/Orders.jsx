@@ -91,17 +91,22 @@ export default function Orders() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ px: { xs: 2, sm: 3 } }}>
+    <Container maxWidth="md" sx={{ px: { xs: 2, sm: 3 },  }}>
       <Typography variant="h4" gutterBottom>
         My Orders
       </Typography>
       {orders.length === 0 ? (
         <Typography>No orders found.</Typography>
       ) : (
-        <Grid container spacing={3}>
+        <Grid container spacing={3} >
           {orders.map((order) => (
             <Grid item xs={12} key={order.id}>
-              <Paper sx={{ p: 2 }}>
+              <Paper sx={{ p: 2, background: "rgba(255, 255, 255, 0.1)",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: "15px",
+          color: "white" }}>
                 <Box display="flex" justifyContent="space-between">
                   <Typography variant="h6" gutterBottom>
                     Order #{order.id.substring(0, 8)}
@@ -112,7 +117,7 @@ export default function Orders() {
                     sx={{ mr: 2 }}
                   />
                 </Box>
-                <Typography variant="body2" color="textSecondary">
+                <Typography variant="body2" color="lightgray">
                   Placed on {formatDate(order.created_at)}
                 </Typography>
                 <Box sx={{ mt: 2 }}>

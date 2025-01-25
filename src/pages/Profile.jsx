@@ -235,11 +235,23 @@ export default function Profile() {
   if (!profile) {
     return (
       <Container maxWidth="sm">
-        <Paper sx={{ p: 3, mt: 4, textAlign: "center" }}>
+        <Paper
+          sx={{
+            p: 3,
+            mt: 4,
+            textAlign: "center",
+            background: "rgba(255, 255, 255, 0.1)",
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+            border: "1px solid rgba(255, 255, 255, 0.3)",
+            borderRadius: "15px",
+            color: "white",
+          }}
+        >
           <Typography variant="h6" gutterBottom>
             No Profile Found
           </Typography>
-          <Typography color="text.secondary" paragraph>
+          <Typography color="lightgray" paragraph>
             Please complete your profile to continue using OIS Garden.
           </Typography>
           <Button
@@ -256,7 +268,19 @@ export default function Profile() {
 
   return (
     <Container maxWidth="sm" sx={{ px: { xs: 2, sm: 3 } }}>
-      <Paper elevation={3} sx={{ mt: { xs: 4, sm: 8 }, p: { xs: 2, sm: 4 } }}>
+      <Paper
+        elevation={3}
+        sx={{
+          mt: { xs: 4, sm: 8 },
+          p: { xs: 2, sm: 4 },
+          background: "rgba(255, 255, 255, 0.1)",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: "15px",
+          color: "white",
+        }}
+      >
         <Box
           sx={{
             display: "flex",
@@ -270,30 +294,26 @@ export default function Profile() {
             variant="outlined"
             startIcon={<EditIcon />}
             onClick={handleEditClick}
+            sx={{outline: "2px solid white", color: "white"}}
           >
             Edit Profile
           </Button>
         </Box>
         <Box sx={{ mt: 1 }}>
-          <Typography variant="subtitle1" color="text.secondary">
+          <Typography variant="subtitle1" color="lightgray">
             First Name
           </Typography>
-          <Typography variant="body1">{profile.firstName}</Typography>
+          <Typography variant="body1">
+            {profile.firstName} {profile.lastName}</Typography>
         </Box>
         <Box sx={{ mt: 1 }}>
-          <Typography variant="subtitle1" color="text.secondary">
-            Last Name
-          </Typography>
-          <Typography variant="body1">{profile.lastName}</Typography>
-        </Box>
-        <Box sx={{ mt: 1 }}>
-          <Typography variant="subtitle1" color="text.secondary">
+          <Typography variant="subtitle1" color="lightgray">
             Email
           </Typography>
           <Typography variant="body1">{profile.email}</Typography>
         </Box>
         <Box sx={{ mt: 1 }}>
-          <Typography variant="subtitle1" color="text.secondary">
+          <Typography variant="subtitle1" color="lightgray">
             Phone
           </Typography>
           <Typography variant="body1">{profile.phone}</Typography>
@@ -301,7 +321,7 @@ export default function Profile() {
         {profile.role === "parent" && (
           <>
             <Box sx={{ mt: 1 }}>
-              <Typography variant="subtitle1" color="text.secondary">
+              <Typography variant="subtitle1" color="lightgray">
                 Student First Name
               </Typography>
               <Typography variant="body1">
@@ -309,7 +329,7 @@ export default function Profile() {
               </Typography>
             </Box>
             <Box sx={{ mt: 1 }}>
-              <Typography variant="subtitle1" color="text.secondary">
+              <Typography variant="subtitle1" color="lightgray">
                 Student Last Name
               </Typography>
               <Typography variant="body1">
@@ -317,7 +337,7 @@ export default function Profile() {
               </Typography>
             </Box>
             <Box sx={{ mt: 1 }}>
-              <Typography variant="subtitle1" color="text.secondary">
+              <Typography variant="subtitle1" color="lightgray">
                 Student Class
               </Typography>
               <Typography variant="body1">
@@ -325,7 +345,7 @@ export default function Profile() {
               </Typography>
             </Box>
             <Box sx={{ mt: 1 }}>
-              <Typography variant="subtitle1" color="text.secondary">
+              <Typography variant="subtitle1" color="lightgray">
                 Student Section
               </Typography>
               <Typography variant="body1">
@@ -333,7 +353,7 @@ export default function Profile() {
               </Typography>
             </Box>
             <Box sx={{ mt: 1 }}>
-              <Typography variant="subtitle1" color="text.secondary">
+              <Typography variant="subtitle1" color="lightgray">
                 Student GEMS ID
               </Typography>
               <Typography variant="body1">
@@ -344,7 +364,7 @@ export default function Profile() {
         )}
         {profile.role === "staff" && (
           <Box sx={{ mt: 1 }}>
-            <Typography variant="subtitle1" color="text.secondary">
+            <Typography variant="subtitle1" color="lightgray">
               Staff GEMS ID
             </Typography>
             <Typography variant="body1">
@@ -357,6 +377,12 @@ export default function Profile() {
         open={editDialogOpen}
         onClose={handleCloseDialog}
         maxWidth="sm"
+        sx={{ background: "rgba(255, 255, 255, 0.1)",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: "15px",
+          color: "white"}}
         fullWidth
       >
         <DialogTitle>Edit Profile</DialogTitle>

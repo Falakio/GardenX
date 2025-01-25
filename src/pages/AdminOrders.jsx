@@ -667,7 +667,7 @@ export default function AdminOrders() {
       const emailHtml = generateStatusEmailHtml(profile, cartItems, total, orderMode, orderId, newStatus);
   
       // Send email notification
-      await sendEmail(profile.email, `Your Order has been ${newStatus}`, 'Your order status has been updated.', emailHtml);
+      // await sendEmail(profile.email, `Your Order has been ${newStatus}`, 'Your order status has been updated.', emailHtml);
   
       setSnackbar({
         open: true,

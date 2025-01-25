@@ -1,3 +1,4 @@
+import "../index.css";
 import { useState, useEffect } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
@@ -14,6 +15,12 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+  TextField, // Import TextField component
 } from "@mui/material";
 import {
   ShoppingCart as ShoppingCartIcon,
@@ -22,7 +29,8 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { signOut, isAdmin } from "../services/supabase";
-import logo from "../assets/logo-red.png";
+import logo2 from "../assets/logo-red.png";
+import logo from "../assets/logo.png";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -31,22 +39,31 @@ function Navbar() {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [selectedSchool, setSelectedSchool] = useState(localStorage.getItem('selectedSchool') || "school1");
   const [schools, setSchools] = useState([]);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    // Fetch the list of schools from the server or a static list
-    const fetchedSchools = [
-      { id: "school1", name: "Our Own Indian School" },
-      { id: "school2", name: "Our Own English High School" },
-      { id: "school3", name: "Our Own Al Ain" },
-    ];
-    setSchools(fetchedSchools);
+    const fetchSchools = async () => {
+      try {
+        const response = await fetch('/schools.json');
+        const data = await response.json();
+        setSchools(data);
 
-    // Ensure the selectedSchool is valid
-    if (!fetchedSchools.some(school => school.id === selectedSchool)) {
-      setSelectedSchool(fetchedSchools[0].id);
-      localStorage.setItem('selectedSchool', fetchedSchools[0].id);
-    }
-  }, []);
+        if (!data.some(school => school.id === selectedSchool)) {
+          setSelectedSchool(data[0].id);
+          localStorage.setItem('selectedSchool', data[0].id);
+        }
+      } catch (error) {
+        console.error("Error fetching schools:", error);
+      }
+    };
+
+    fetchSchools();
+  }, [selectedSchool]);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -61,12 +78,97 @@ function Navbar() {
     setSelectedSchool(selectedSchoolId);
     localStorage.setItem('selectedSchool', selectedSchoolId);
     console.log(`Switched to ${selectedSchoolId}`);
-    await signOut(); // Log out the user
-    window.location.reload(); // Refresh the page
+    await signOut();
+    window.location.reload();
   };
 
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+    event.preventDefault();
+    navigate(`/shop?search=${searchQuery}`);
+  };
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    navigate(`/shop?search=${searchQuery}`);
+  };
+
+  const drawer = (
+    <Box sx={{ width: 250 }} onClick={handleDrawerToggle}>
+      <Typography variant="h6" sx={{ my: 2, textAlign: "center" }}>
+        <img src={logo} alt="Logo" style={{ height: 40 }} />
+      </Typography>
+      <Divider />
+      <List>
+        <ListItem button component={RouterLink} to="/">
+          <ListItemText primary="Shop" />
+        </ListItem>
+        <ListItem button component={RouterLink} to="/orders">
+          <ListItemText primary="Orders" />
+        </ListItem>
+        <ListItem button component={RouterLink} to="/profile">
+          <ListItemText primary="Profile" />
+        </ListItem>
+        <ListItem button component={RouterLink} to="/credits">
+          <ListItemText primary="Credits" />
+        </ListItem>
+        <Divider />
+        <ListItem>
+          <FormControl sx={{ minWidth: 120, width: "100%" }}>
+            <InputLabel id="school-select-label">School</InputLabel>
+            <Select
+              labelId="school-select-label"
+              id="school-select"
+              value={selectedSchool}
+              onChange={handleSchoolChange}
+              label="School"
+            >
+              {schools.map((school) => (
+                <MenuItem key={school.id} value={school.id}>
+                  {school.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </ListItem>
+        <ListItem button component={RouterLink} to="/cart">
+          <Badge badgeContent={itemCount} color="secondary">
+            <ShoppingCartIcon />
+          </Badge>
+          <ListItemText primary="Cart" />
+        </ListItem>
+        <Divider />
+        {user ? (
+          <ListItem
+            button
+            onClick={() => {
+              signOut();
+              navigate("/login");
+            }}
+          >
+            <ListItemText primary="Logout" />
+          </ListItem>
+        ) : (
+          <ListItem button component={RouterLink} to="/login">
+            <ListItemText primary="Login" />
+          </ListItem>
+        )}
+      </List>
+    </Box>
+  );
+
   return (
-    <AppBar position="static">
+    <AppBar
+      sx={{
+        background: "#2c604a",
+        boxShadow: "none",
+        position: "sticky",
+        t: 0,
+        color: "white",
+        pb: 2,
+        pt: 1,
+      }}
+    >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Typography
@@ -74,7 +176,7 @@ function Navbar() {
             noWrap
             component={RouterLink}
             to="/"
-            sx={{ mr: 2, display: { xs: "none", md: "flex" } }}
+            sx={{ mr: 2, display: { xs: "none", md: "flex" }, color: "white" }}
           >
             <img src={logo} alt="Logo" style={{ height: 40 }} />
           </Typography>
@@ -108,34 +210,30 @@ function Navbar() {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {isAdmin(user) ? (
-                <>
-                  <MenuItem onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center" component={RouterLink} to="/admin">Dashboard</Typography>
-                  </MenuItem>
-                  <MenuItem onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center" component={RouterLink} to="/admin/products">Products</Typography>
-                  </MenuItem>
-                  <MenuItem onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center" component={RouterLink} to="/admin/orders">Orders</Typography>
-                  </MenuItem>
-                  <MenuItem onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center" component={RouterLink} to="/admin/manual-entry">Manual Entry</Typography>
-                  </MenuItem>
-                </>
-              ) : (
-                <>
-                  <MenuItem onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center" component={RouterLink} to="/shop">Shop</Typography>
-                  </MenuItem>
-                  <MenuItem onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center" component={RouterLink} to="/orders">Orders</Typography>
-                  </MenuItem>
-                  <MenuItem onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center" component={RouterLink} to="/profile">Profile</Typography>
-                  </MenuItem>
-                </>
-              )}
+              {isAdmin(user) ? [
+                <MenuItem key="dashboard" onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center" component={RouterLink} to="/admin/dashboard">Dashboard</Typography>
+                </MenuItem>,
+                <MenuItem key="products" onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center" component={RouterLink} to="/admin/products">Products</Typography>
+                </MenuItem>,
+                <MenuItem key="orders" onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center" component={RouterLink} to="/admin/orders">Orders</Typography>
+                </MenuItem>,
+                <MenuItem key="manual-entry" onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center" component={RouterLink} to="/admin/manual-entry">Manual Entry</Typography>
+                </MenuItem>
+              ] : [
+                <MenuItem key="shop" onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center" component={RouterLink} to="/">Shop</Typography>
+                </MenuItem>,
+                <MenuItem key="orders" onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center" component={RouterLink} to="/orders">Orders</Typography>
+                </MenuItem>,
+                <MenuItem key="profile" onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center" component={RouterLink} to="/profile">Profile</Typography>
+                </MenuItem>
+              ]}
             </Menu>
           </Box>
 
@@ -154,7 +252,7 @@ function Navbar() {
               <>
                 <Button
                   component={RouterLink}
-                  to="/admin"
+                  to="/admin/dashboard"
                   sx={{ my: 2, color: "white", display: "block" }}
                 >
                   Dashboard
@@ -185,7 +283,7 @@ function Navbar() {
               <>
                 <Button
                   component={RouterLink}
-                  to="/shop"
+                  to="/"
                   sx={{ my: 2, color: "white", display: "block" }}
                 >
                   Shop
@@ -208,15 +306,81 @@ function Navbar() {
             )}
           </Box>
 
-          <Box sx={{ flexGrow: 0 }}>
-            <FormControl variant="outlined" sx={{ minWidth: 120, mr: 2 }}>
-              <InputLabel id="school-select-label">School</InputLabel>
+          <Box
+            component="form"
+            onSubmit={handleSearchSubmit}
+            sx={{
+              flexGrow: 1,
+              marginTop: 2,
+              width: { xs: "100%", md: "10%" },
+              color: "white",
+              border: "none",
+              backgroundColor: "#638a7b",
+              borderRadius: "30px 10px",
+              mr: 2,
+            }}
+          >
+            <TextField
+              placeholder="Search..."
+              value={searchQuery}
+              onInputCapture={handleSearchChange}
+              onChange={handleSearchChange}
+              onInput={handleSearchChange}
+              onEmptied={handleSearchChange}
+              onClick={handleSearchChange}
+              sx={{
+                width: "100%",
+                color: "white",
+                border: "none",
+              }}
+              InputProps={{
+                sx: {
+                  color: "#fff",
+                  borderRadius: "30px 10px",
+                  border: "none",
+                },
+              }}
+            />
+          </Box>
+
+          <IconButton
+            size="large"
+            aria-label="open drawer"
+            onClick={handleDrawerToggle}
+            color="inherit"
+            sx={{ mr: 0, color: "white", marginTop: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+
+          <Box
+            alignItems="center"
+            justifyContent="center"
+            display={{ xs: "none", md: "flex" }}
+            sx={{ flexGrow: 0, color: "white" }}
+          >
+            <FormControl
+              sx={{
+                minWidth: 120,
+                mr: 2,
+                backgroundColor: "#2c604a",
+                color: "white",
+              }}
+            >
+              <InputLabel id="school-select-label" sx={{ color: "white" }}>
+                School
+              </InputLabel>
               <Select
                 labelId="school-select-label"
                 id="school-select"
                 value={selectedSchool}
                 onChange={handleSchoolChange}
                 label="School"
+                sx={{
+                  color: "#fff",
+                  outlineColor: "#fff",
+                  backgroundColor: "#2c604a",
+                }}
               >
                 {schools.map((school) => (
                   <MenuItem key={school.id} value={school.id}>
@@ -230,7 +394,7 @@ function Navbar() {
               component={RouterLink}
               to="/cart"
               color="inherit"
-              sx={{ mr: 2 }}
+              sx={{ mr: 2, color: "white" }}
             >
               <Badge badgeContent={itemCount} color="secondary">
                 <ShoppingCartIcon />
@@ -244,6 +408,7 @@ function Navbar() {
                   signOut();
                   navigate("/login");
                 }}
+                sx={{ color: "white" }}
               >
                 Logout
               </Button>
@@ -252,6 +417,7 @@ function Navbar() {
                 color="inherit"
                 component={RouterLink}
                 to="/login"
+                sx={{ color: "white" }}
               >
                 Login
               </Button>

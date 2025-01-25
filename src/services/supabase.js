@@ -1,35 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 import { sendNotification } from './notifications';
 
-// if (!supabaseUrl || !supabaseAnonKey) {
-//   console.error(
-//     "Missing Supabase environment variables. Please check your .env file."
-//   );
-//   console.log("Required variables:");
-//   console.log("VITE_SUPABASE_URL:", supabaseUrl ? "Set" : "Missing");
-//   console.log("VITE_SUPABASE_ANON_KEY:", supabaseAnonKey ? "Set" : "Missing");
-// }
-
 const getSupabaseConfig = (schoolId) => {
-  switch (schoolId) {
-    case 'school1':
-      return {
-        url: import.meta.env.VITE_SUPABASE_URL_SCHOOL1,
-        anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY_SCHOOL1,
-      };
-    case 'school2':
-      return {
-        url: import.meta.env.VITE_SUPABASE_URL_SCHOOL2,
-        anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY_SCHOOL2,
-      };
-    case 'school3':
-      return {
-        url: import.meta.env.VITE_SUPABASE_URL_SCHOOL3,
-        anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY_SCHOOL3,
-      };
-    default:
-      throw new Error('Invalid schoolId');
+  const url = import.meta.env[`VITE_SUPABASE_URL_${schoolId.toUpperCase()}`];
+  const anonKey = import.meta.env[`VITE_SUPABASE_ANON_KEY_${schoolId.toUpperCase()}`];
+
+  if (!url || !anonKey) {
+    throw new Error(`Supabase configuration not found for schoolId: ${schoolId}`);
   }
+
+  return { url, anonKey };
 };
 
 const schoolId = localStorage.getItem('selectedSchool') || 'school1';
@@ -38,9 +18,9 @@ const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseConfig(schoolI
 let supabase = createClient(supabaseUrl, supabaseAnonKey);
 export { supabase };
 
-// User role helper
 export const isAdmin = (user) => {
-  return user?.email === "admin@gemsdaa.net" || false;
+  const email = user?.email || "";
+  return email === "admin@gemsdaa.net" || email === "aman@gardenx.33mail.com";
 };
 
 // Auth helper functions

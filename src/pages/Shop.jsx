@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
 import {
   Container,
   Typography,
@@ -18,6 +18,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { getProducts, isAdmin } from "../services/supabase";
 import ProductCard from "../components/ProductCard";
 import { useCart } from "../contexts/CartContext";
+import "../index.css"; // Import the global styles
 
 export default function Shop() {
   const navigate = useNavigate();
@@ -28,6 +29,13 @@ export default function Shop() {
   const [error, setError] = useState(null);
   const [category, setCategory] = useState("");
   const [inStockOnly, setInStockOnly] = useState(false);
+  const location = useLocation();
+  const query = new URLSearchParams(location.search).get("search") || "";
+  const [searchQuery, setSearchQuery] = useState(query);
+
+  useEffect(() => {
+    setSearchQuery(query);
+  }, [query]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -67,7 +75,9 @@ export default function Shop() {
     .filter((product) => {
       return (
         (category === "" || product.category === category) &&
-        (!inStockOnly || product.stock_quantity > 0)
+        (!inStockOnly || product.stock_quantity > 0) &&
+        (searchQuery === "" ||
+          product.name.toLowerCase().includes(searchQuery.toLowerCase()))
       );
     })
     .sort((a, b) => b.stock_quantity - a.stock_quantity); // Sort by stock quantity
@@ -81,42 +91,103 @@ export default function Shop() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ pb: { xs: 2, sm: 3 } }}>
+    <Container
+      maxWidth="lg"
+      sx={{
+        pb: { xs: 2, sm: 3 },
+        backgroundColor: "#2c604a",
+        color: "white",
+        fontFamily: "Montserrat, sans-serif",
+      }}
+    >
       <Box sx={{ mt: { xs: 4, sm: 6 }, mb: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          Products
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{
+            color: "white",
+            fontFamily: "Montserrat, sans-serif",
+            fontWeight: 600,
+          }}
+        >
+          Categories
         </Typography>
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert
+            severity="error"
+            sx={{
+              mb: 2,
+              backgroundColor: "#2c604a",
+              color: "white",
+              fontFamily: "Montserrat, sans-serif",
+            }}
+          >
             {error}
           </Alert>
         )}
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Category</InputLabel>
-          <Select
-            value={category}
-            onChange={handleCategoryChange}
-            sx={{ backgroundColor: "white" }}
-          >
-            <MenuItem value="">All</MenuItem>
-            <MenuItem value="Vegetable">Vegetable</MenuItem>
-            <MenuItem value="Plant">Plant</MenuItem>
-            <MenuItem value="Seed">Seed</MenuItem>
-            <MenuItem value="Misc">Misc</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={inStockOnly}
-              onChange={handleStockChange}
-              color="primary"
-            />
-          }
-          label="In Stock Only"
-        />
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexWrap: "nowrap",
+            mb: 2,
+            overflowX: "auto",
+          }}
+        >
+          {[
+            { emoji: "🧺", value: "" },
+            { emoji: "🍅", value: "Vegetable" },
+            { emoji: "🌱", value: "Plant" },
+            { emoji: "🫘", value: "Seed" },
+            { emoji: "✏️", value: "Misc" },
+          ].map((cat) => (
+            <Box
+              key={cat.value}
+              component="button"
+              onClick={() => setCategory(cat.value)}
+              sx={{
+                backgroundColor: "#51826d",
+                borderRadius: "25px 2px",
+                color: "white",
+                border: "none",
+                padding: "8px 16px",
+                cursor: "pointer",
+                height: "4rem",
+                width: "4rem",
+                fontSize: "1.5rem",
+                fontFamily: "Montserrat, sans-serif",
+                "&:hover": {
+                  backgroundColor: "#1e3d2b",
+                },
+              }}
+            >
+              {cat.emoji}
+            </Box>
+          ))}
+        </Box>
+        <Box
+          component="button"
+          onClick={() => setInStockOnly(!inStockOnly)}
+          sx={{
+            backgroundColor: inStockOnly ? "#1e3d2b" : "#51826d",
+            borderRadius: "25px",
+            color: "white",
+            border: "none",
+            padding: "8px 16px",
+            cursor: "pointer",
+            height: "3rem",
+            width: "100%",
+            fontSize: "1rem",
+            fontFamily: "Montserrat, sans-serif",
+            "&:hover": {
+              backgroundColor: "#1e3d2b",
+            },
+          }}
+        >
+          {inStockOnly ? "Show All" : "Show in Stock Only"}
+        </Box>
       </Box>
-      <Grid container spacing={3} alignItems="stretch">
+      <Grid container spacing={3} alignItems="stretch" sx={{ color: "white" }}>
         {filteredProducts.map((product) => (
           <Grid
             item

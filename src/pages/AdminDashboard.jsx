@@ -45,13 +45,13 @@ function AdminDashboard() {
     const checkAdmin = async () => {
       try {
         if (!user) {
-          setError("Please sign in to access the admin panel");
+          console.log("Please sign in to access the admin panel");
           navigate("/");
           return;
         }
 
         if (!isAdmin(user)) {
-          setError("You do not have admin privileges");
+          console.log("You do not have admin privileges");
           navigate("/");
           return;
         }
