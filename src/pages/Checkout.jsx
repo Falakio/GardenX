@@ -69,62 +69,64 @@ export default function Checkout() {
   };
 
   const generateInvoiceHtml = (profile, cart, total, orderMode, orderId, orderStatus) => {
-    const itemsHtml = cart
-      .map(
-        (item) => `
-        <tr>
-          <td style="padding: 8px; border: 1px solid #ddd;">${item.name}</td>
-          <td style="padding: 8px; border: 1px solid #ddd;">${item.quantity}</td>
-          <td style="padding: 8px; border: 1px solid #ddd;">AED ${(item.price * item.quantity).toFixed(2)}</td>
-        </tr>
-      `
-      )
-      .join("");
-  
-    const orderModeMessage = profile.role !== "visitor" ? `<p><strong>Order Mode:</strong> ${orderMode[0].toUpperCase() + orderMode.slice(1)}</p>` : "";
+    const itemsHtml = cart.map((item) => (
+      <tr key={item.id}>
+        <td style={{ padding: "8px", border: "1px solid #ddd" }}>{item.name}</td>
+        <td style={{ padding: "8px", border: "1px solid #ddd" }}>{item.quantity}</td>
+        <td style={{ padding: "8px", border: "1px solid #ddd" }}>AED {(item.price * item.quantity).toFixed(2)}</td>
+      </tr>
+    ));
+
+    const orderModeMessage = profile.role !== "visitor" ? (
+      <p><strong>Order Mode:</strong> {orderMode[0].toUpperCase() + orderMode.slice(1)}</p>
+    ) : null;
     const status = orderStatus[0].toUpperCase() + orderStatus.slice(1);
 
-    return `
-      <div style="padding: 3px; display: flex; justify-content: center; align-items: center; min-height: 100vh;">
-        <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); max-width: 600px; width: 100%;">
-          <div style="text-align: center; margin-bottom: 20px; background-color: f2f2f2; padding: 10px; border-radius: 8px;">
-            <img src="https://i.imgur.com/j5AOMcr.png" alt="App Logo" style="height: 50px; margin-bottom: 10px;" />
-            <h1 style="color: green; margin: 0;">OIS Organic Garden</h1>
+    return (
+      <div style={{ padding: "3px", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <div style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", maxWidth: "600px", width: "100%" }}>
+          <div style={{ textAlign: "center", marginBottom: "20px", backgroundColor: "#f2f2f2", padding: "10px", borderRadius: "8px" }}>
+            <img src="https://i.imgur.com/j5AOMcr.png" alt="App Logo" style={{ height: "50px", marginBottom: "10px" }} />
+        <h1 style={{ color: "green", margin: 0 }}>OIS Organic Garden</h1>
           </div>
-          <h4 style="color: green;">Order ID: ${orderId}</h4>
-          <span style="background-color: ${orderStatus === 'completed' ? 'green' : 'orange'}; color: white; padding: 5px 10px; border-radius: 20px;">${status}</span>
-          <h2 style="color: green;">Order Summary</h2>
-          <p><strong>Name:</strong> ${profile.firstName} ${profile.lastName}</p>
-          ${profile.role === "parent" ? `
-            <h3 style="color: green;">Student Information</h3>
-            <p><strong>Name:</strong> ${profile.details.student_first_name} ${profile.details.student_last_name}</p>
-            <p><strong>Class:</strong> ${profile.details.student_class} ${profile.details.student_section}</p>
-            <p><strong>GEMS ID:</strong> ${profile.details.student_gems_id}</p>
-          ` : ""}
-          ${profile.role === "staff" ? `
-            <h3 style="color: green;">Staff Information</h3>
-            <p><strong>Staff GEMS ID:</strong> ${profile.details.staff_gems_id}</p>
-          ` : ""}
-          <h3 style="color: green;">Items</h3>
-          <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <h4 style={{ color: "green" }}>Order ID: {orderId}</h4>
+          <span style={{ backgroundColor: orderStatus === "completed" ? "green" : "orange", color: "white", padding: "5px 10px", borderRadius: "20px" }}>{status}</span>
+          <h2 style={{ color: "green" }}>Order Summary</h2>
+          <p><strong>Name:</strong> {profile.firstName} {profile.lastName}</p>
+          {profile.role === "parent" && (
+            <>
+              <h3 style={{ color: "green" }}>Student Information</h3>
+              <p><strong>Name:</strong> {profile.details.student_first_name} {profile.details.student_last_name}</p>
+              <p><strong>Class:</strong> {profile.details.student_class} {profile.details.student_section}</p>
+              <p><strong>GEMS ID:</strong> {profile.details.student_gems_id}</p>
+            </>
+          )}
+          {profile.role === "staff" && (
+            <>
+              <h3 style={{ color: "green" }}>Staff Information</h3>
+              <p><strong>Staff GEMS ID:</strong> {profile.details.staff_gems_id}</p>
+            </>
+          )}
+          <h3 style={{ color: "green" }}>Items</h3>
+          <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
             <thead>
               <tr>
-                <th style="padding: 8px; border: 1px solid #ddd; background-color: #f2f2f2;">Item</th>
-                <th style="padding: 8px; border: 1px solid #ddd; background-color: #f2f2f2;">Quantity</th>
-                <th style="padding: 8px; border: 1px solid #ddd; background-color: #f2f2f2;">Price</th>
+                <th style={{ padding: "8px", border: "1px solid #ddd", backgroundColor: "#f2f2f2" }}>Item</th>
+                <th style={{ padding: "8px", border: "1px solid #ddd", backgroundColor: "#f2f2f2" }}>Quantity</th>
+                <th style={{ padding: "8px", border: "1px solid #ddd", backgroundColor: "#f2f2f2" }}>Price</th>
               </tr>
             </thead>
             <tbody>
-              ${itemsHtml}
+              {itemsHtml}
             </tbody>
           </table>
-          <h3 style="color: green; margin-top: 20px;">Total: AED ${total.toFixed(2)}</h3>
-          ${orderModeMessage}
-          <br>
-          <p style="text-align: center;">Thank you for your order!</p>
+          <h3 style={{ color: "green", marginTop: "20px" }}>Total: AED {total.toFixed(2)}</h3>
+          {orderModeMessage}
+          <br />
+          <p style={{ textAlign: "center" }}>Thank you for your order!</p>
         </div>
       </div>
-    `;
+    );
   };
 
   const handleCheckout = async () => {
@@ -214,24 +216,27 @@ export default function Checkout() {
           sx={{
             mt: { xs: 4, sm: 8 },
             p: { xs: 2, sm: 4 },
+            
+          background: "rgba(255, 255, 255, 0.1)",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: "15px",
+          color: "white",
           }}
         >
           <Typography variant="h6" gutterBottom>
             Order Summary
           </Typography>
 
-          <Typography>First Name: {profile.firstName}</Typography>
-          <Typography>Last Name: {profile.lastName}</Typography>
+          <Typography>Name: {profile.firstName} {profile.lastName}</Typography>
           {profile.role === "parent" && (
             <Box sx={{ mt: 1 }}>
               <Typography variant="subtitle1" color="text.secondary">
                 Student Information
               </Typography>
               <Typography>
-                First Name: {profile.details.student_first_name}
-              </Typography>
-              <Typography>
-                Last Name: {profile.details.student_last_name}
+                Name: {profile.details.student_first_name} {profile.details.student_last_name}
               </Typography>
               <Typography>Class: {profile.details.student_class}</Typography>
               <Typography>
@@ -291,10 +296,7 @@ export default function Checkout() {
               </RadioGroup>
             </FormControl>
           )}
-        </Paper>
-      )}
-
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt:2 }}>
         <Button
           variant="contained"
           color="primary"
@@ -311,15 +313,18 @@ export default function Checkout() {
         </Button>
 
         <Button
-          variant="outlined"
           onClick={() => navigate("/cart")}
           startIcon={<ArrowBack />}
           size="large"
+          style={{ color: "white", outline: "1px solid white" }}
           fullWidth
         >
           Return to Cart
         </Button>
       </Box>
+        </Paper>
+      )}
+
     </Container>
   );
 }

@@ -19,8 +19,7 @@ import SignUpForm from "../components/SignUpForm";
 import { useAuth } from "../contexts/AuthContext";
 import InfoIcon from "@mui/icons-material/Info";
 import MagicIcon from "@mui/icons-material/AutoAwesome";
-import { sendMagicLink } from '../services/supabase';
-
+import { sendMagicLink } from "../services/supabase";
 
 function Login() {
   const navigate = useNavigate();
@@ -28,7 +27,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState(0);
   const [countdown, setCountdown] = useState(0);
@@ -54,21 +53,21 @@ function Login() {
   const handleSendMagicLink = async () => {
     setLoading(true);
     if (!email) {
-      setError('Please enter your email');
+      setError("Please enter your email");
       setLoading(false);
       return;
     }
     const { data, error } = await sendMagicLink(email);
     if (error) {
-      if (error.message === 'Signups not allowed for otp') {
-        setError('You do not have an account. Please sign up first.');
+      if (error.message === "Signups not allowed for otp") {
+        setError("You do not have an account. Please sign up first.");
       } else {
-        setError('Failed to send magic link. Please try again.');
+        setError("Failed to send magic link. Please try again.");
       }
-      setMessage('');
+      setMessage("");
     } else {
-      setMessage('A magic link has been sent to your email.');
-      setError('');
+      setMessage("A magic link has been sent to your email.");
+      setError("");
       setCountdown(60);
     }
     setLoading(false);
@@ -91,7 +90,19 @@ function Login() {
 
   return (
     <Container maxWidth="sm" sx={{ px: { xs: 2, sm: 3 } }}>
-      <Paper elevation={3} sx={{ mt: { xs: 4, sm: 8 }, p: { xs: 2, sm: 4 } }}>
+      <Paper
+        elevation={3}
+        sx={{
+          mt: { xs: 4, sm: 8 },
+          p: { xs: 2, sm: 4 },
+          background: "rgba(255, 255, 255, 0.1)",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: "15px",
+          color: "white",
+        }}
+      >
         <Tabs
           value={tab}
           onChange={(e, newValue) => setTab(newValue)}
@@ -107,11 +118,11 @@ function Login() {
               Sign In
             </Typography>
             {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-        {message && <Alert severity="success">{message}</Alert>}
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
+            {message && <Alert severity="success">{message}</Alert>}
             <Box
               component="form"
               onSubmit={(e) => {
@@ -157,24 +168,36 @@ function Login() {
                 Sign In
               </Button>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2 }}>
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={handleSendMagicLink}
-          fullWidth
-          startIcon={<MagicIcon />}
-          sx={{ mr: 1 }}
-          disabled={countdown > 0}
-        >
-                {countdown > 0 ? `Send Magic Link (${countdown}s)` : 'Send Magic Link'}
-                </Button>
-        <Tooltip title="If you forgot your password we can help you sign in using a one time link sent to your email" placement="right">
-          <IconButton>
-            <InfoIcon />
-          </IconButton>
-        </Tooltip>
-      </Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mt: 2,
+              }}
+            >
+              <Button
+                variant="outlined"
+
+                onClick={handleSendMagicLink}
+                fullWidth
+                startIcon={<MagicIcon />}
+                sx={{ mr: 1, outline: "1px solid white", color: "white" }}
+                disabled={countdown > 0}
+              >
+                {countdown > 0
+                  ? `Send Magic Link (${countdown}s)`
+                  : "Send Magic Link"}
+              </Button>
+              <Tooltip
+                title="If you forgot your password we can help you sign in using a one time link sent to your email"
+                placement="right"
+              >
+                <IconButton>
+                  <InfoIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
           </>
         ) : (
           <SignUpForm />

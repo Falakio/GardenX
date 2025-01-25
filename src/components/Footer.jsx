@@ -12,26 +12,17 @@ const Footer = () => {
         px: 3,
         mt: "auto",
         textAlign: "center",
-        backgroundColor: "#f5f5f5",
+        backgroundColor: "#2c604a",
       }}
     >
-      <Typography variant="body2" color="textSecondary">
-        Made with{" "}
-        <span role="img" aria-label="love">
-          ❤️
-        </span>{" "}
-        by{" "}
-        <Link href="https://amansanoj.tech" target="_blank" rel="noopener">
-          Aman
-        </Link>{" "}
-        and{" "}
-        <Link href="https://ar1vu.com" target="_blank" rel="noopener">
-          AbdulRahman
-        </Link>{" "}
-        (C) {currentYear}
+      <Typography color="#fff">
+        Copyright &copy; {currentYear}. All Rights Reserved.{" "}
       </Typography>
+      <Typography color="#fff">
+        GardenX is a subsidiary of Al Falak Network
+        </Typography>
       <Typography variant="body2" color="textSecondary">
-        <Link href="/credits">Credits</Link>
+        <Link href="/credits" sx={{color: "lightgreen"}}>Credits</Link>
       </Typography>
     </Box>
   );

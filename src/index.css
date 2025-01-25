@@ -1,9 +1,23 @@
 /* Hide scrollbar for Chrome, Safari and Opera on mobile */
 
+
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/all.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-duotone-thin.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-duotone-solid.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-duotone-regular.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-duotone-light.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-thin.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-solid.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-regular.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/sharp-light.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/duotone-thin.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/duotone-regular.css");
+@import url("https://site-assets.fontawesome.com/releases/v6.7.1/css/duotone-light.css");
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 ::-webkit-scrollbar {
   display: none;
 }
-
 * {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
@@ -14,6 +28,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: 'Montserrat';  
 }
 
 /* Set root height */
@@ -21,4 +36,17 @@ html,
 body,
 #root {
   height: 100%;
+}
+
+html, body, #root  {
+  background-color: #2c604a;
+}
+
+.MuiDrawer-paperAnchorLeft {
+  background-color: #ffd079;  
+}
+/* Disable overscroll */
+body {
+  -ms-overflow-style: none; /* IE and Edge */
+  overscroll-behavior: none;
 }
