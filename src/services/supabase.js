@@ -40,7 +40,6 @@ export const switchDatabase = (schoolId) => {
 
   // Recreate the Supabase client with the new configuration
   supabase = createClient(newSupabaseUrl, newSupabaseAnonKey);
-  console.log(newSupabaseUrl, newSupabaseAnonKey);
 };
 
 export { supabase };
@@ -58,7 +57,7 @@ export const signUpWithEmail = async (email, password) => {
     options: {
       emailRedirectTo: `${window.location.origin}/login`,
       data: {
-        email_confirmed: true, // Auto-confirm email
+        email_confirmed: true,
       },
     },
   });
