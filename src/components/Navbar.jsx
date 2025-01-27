@@ -30,6 +30,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { signOut, isAdmin } from "../services/supabase";
 import logo from "../assets/logo.png";
+import JSON from "../../schools.json";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -47,8 +48,7 @@ function Navbar() {
   useEffect(() => {
     const fetchSchools = async () => {
       try {
-        const response = await fetch("/schools.json");
-        const data = await response.json();
+        const data = JSON;
         setSchools(data);
 
         if (!data.some((school) => school.id === selectedSchool)) {
@@ -95,37 +95,37 @@ function Navbar() {
       <Divider />
       <List>
         {!isAdmin(user) && user && (
-          <ListItem button component={RouterLink} to="/shop">
+          <ListItem component={RouterLink} to="/shop">
             <ListItemText primary="Shop" />
           </ListItem>
         )}
         {!isAdmin(user) && user && (
-          <ListItem button component={RouterLink} to="/orders">
+          <ListItem component={RouterLink} to="/orders">
             <ListItemText primary="Orders" />
           </ListItem>
         )}
         {!isAdmin(user) && user && (
-          <ListItem button component={RouterLink} to="/profile">
+          <ListItem component={RouterLink} to="/profile">
             <ListItemText primary="Profile" />
           </ListItem>
         )}
         {isAdmin(user) && user && (
-          <ListItem button component={RouterLink} to="/admin">
+          <ListItem component={RouterLink} to="/admin">
             <ListItemText primary="Dashboard" />
           </ListItem>
         )}
         {isAdmin(user) && user && (
-          <ListItem button component={RouterLink} to="/admin/products">
+          <ListItem component={RouterLink} to="/admin/products">
             <ListItemText primary="Products" />
           </ListItem>
         )}
         {isAdmin(user) && user && (
-          <ListItem button component={RouterLink} to="/admin/orders">
+          <ListItem component={RouterLink} to="/admin/orders">
             <ListItemText primary="Orders" />
           </ListItem>
         )}
         {isAdmin(user) && user && (
-          <ListItem button component={RouterLink} to="/admin/manual-entry">
+          <ListItem component={RouterLink} to="/admin/manual-entry">
             <ListItemText primary="New Order" />
           </ListItem>
         )}
@@ -160,7 +160,6 @@ function Navbar() {
         <Divider />
         {user ? (
           <ListItem
-            button
             onClick={() => {
               signOut();
               navigate("/login");
@@ -169,7 +168,7 @@ function Navbar() {
             <ListItemText primary="Logout" />
           </ListItem>
         ) : (
-          <ListItem button component={RouterLink} to="/login">
+          <ListItem component={RouterLink} to="/login">
             <ListItemText primary="Login" />
           </ListItem>
         )}
