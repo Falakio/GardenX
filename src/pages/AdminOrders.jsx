@@ -96,7 +96,7 @@ const generateStatusEmailHtml = (
         <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); max-width: 600px; width: 100%;">
           <div style="text-align: center; margin-bottom: 20px; background-color: f2f2f2; padding: 10px; border-radius: 8px;">
             <img src="https://i.imgur.com/j5AOMcr.png" alt="App Logo" style="height: 50px; margin-bottom: 10px;" />
-             <h1 style="color: green; margin: 0;">OIS Organic Garden</h1>
+             <h1 style="color: green; margin: 0;">GardenX</h1>
           </div>
         <h4 style="color: green;">Order ID: ${orderId}</h4>
         <span style="background-color: ${getStatusColorCode(orderStatus)}; color: ${getStatusTextColor(orderStatus)}; padding: 8px 12px; font-weight: bold; border: 2px solid ${getStatusTextColor(orderStatus)}; border-radius: 20px;">${status}</span>
@@ -326,7 +326,7 @@ function EarningsReportDialog({ open, onClose, orders }) {
         </head>
         <body>
           <div class="header">
-            <h1>OIS Organic Garden - Earnings Report</h1>
+            <h1>GardenX - Earnings Report</h1>
             <h3>Period: ${dateRange}</h3>
             <p><strong>Note:</strong> This report includes delivered orders only</p>
           </div>

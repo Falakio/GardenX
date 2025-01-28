@@ -252,7 +252,7 @@ function AdminDashboard() {
               color: "black",
             }}
           >
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{color: "white"}}>
               Revenue by Day (Last 7 Days)
             </Typography>
             <BarChart width={400} height={300} data={analytics.revenueByDay}>
@@ -261,7 +261,7 @@ function AdminDashboard() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="amount" name="Revenue" fill="purple" />
+              <Bar dataKey="amount" name="Revenue" fill="#1b3b2e" />
             </BarChart>
           </Paper>
         </Grid>
