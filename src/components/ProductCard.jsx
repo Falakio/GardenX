@@ -43,7 +43,7 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
           display: "flex",
           flexDirection: "column",
           position: "relative",
-          background: `url(${image_url}) no-repeat center center / contain`,
+          background: `url(${image_url}) no-repeat center center / cover`,
           backdropFilter: "blur(10px)",
           boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
           border: "1px solid rgba(255, 255, 255, 0.3)",
