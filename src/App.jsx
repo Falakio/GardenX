@@ -27,6 +27,7 @@ import { useState, useEffect } from "react";
 import SplashScreen from "./components/SplashScreen"; // Import the SplashScreen component
 import "./index.css"; // Import the global styles
 import { useAuth } from "./contexts/AuthContext";
+import Plans from './pages/Plans';
 
 function MainContent() {
   const { user } = useAuth();
@@ -55,6 +56,7 @@ function MainContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/credits" element={<Credits />} />
           <Route path="/reorder/:orderId" element={<Reorder />} />
+          <Route path="/plans" element={<Plans />} />
           <Route
             path="/cart"
             element={
