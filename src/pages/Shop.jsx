@@ -161,7 +161,7 @@ export default function Shop() {
                 },
               }}
             >
-              {cat.emoji}
+              {cat.emoji}{cat.value}
             </Box>
           ))}
         </Box>

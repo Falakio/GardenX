@@ -261,7 +261,7 @@ function AdminDashboard() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="amount" name="Revenue" fill="#1b3b2e" />
+              <Bar dataKey="amount" name="Revenue" fill="lightgreen" />
             </BarChart>
           </Paper>
         </Grid>
