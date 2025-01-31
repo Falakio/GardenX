@@ -88,7 +88,10 @@ function Navbar() {
   };
 
   const drawer = (
-    <Box sx={{ width: 250, background: "#ffd079", height: "100%" }} onClick={handleDrawerToggle}>
+    <Box
+      sx={{ width: 250, background: "#ffd079", height: "100%" }}
+      onClick={handleDrawerToggle}
+    >
       <Typography variant="h6" sx={{ my: 2, textAlign: "center" }}>
         <img src={logo} alt="Logo" style={{ height: 40 }} />
       </Typography>
@@ -99,6 +102,9 @@ function Navbar() {
             <ListItemText primary="Shop" />
           </ListItem>
         )}
+        <ListItem component={RouterLink} to="/plans">
+          <ListItemText primary="Pricing Plans" />
+        </ListItem>
         {!isAdmin(user) && user && (
           <ListItem component={RouterLink} to="/orders">
             <ListItemText primary="Orders" />
@@ -177,10 +183,9 @@ function Navbar() {
       <Box sx={{ flexGrow: 1 }} />
       <Typography variant="body2" sx={{ textAlign: "center", mb: 2 }}>
         Copyright &copy; 2025 GardenX
-
       </Typography>
       <Typography variant="body2" sx={{ textAlign: "center", mb: 2 }}>
-      All Rights Reserved.
+        All Rights Reserved.
       </Typography>
       <Typography variant="body2" sx={{ textAlign: "center", mb: 2 }}>
         Al Falak Network
@@ -231,7 +236,6 @@ function Navbar() {
               anchor="left"
               open={mobileOpen}
               onClose={handleDrawerToggle}
-              
               ModalProps={
                 {
                   // Better open performance on mobile.
@@ -264,6 +268,8 @@ function Navbar() {
               </Button>
             )}
 
+            
+
             {!isAdmin(user) && user && (
               <Button
                 component={RouterLink}
@@ -293,6 +299,18 @@ function Navbar() {
                 Profile
               </Button>
             )}
+            <Button
+              component={RouterLink}
+              to="/plans"
+              sx={{
+                my: 2,
+                color: "white",
+                display: "block",
+                backgroundColor: "#2c604a",
+              }}
+            >
+              Pricing Plans
+            </Button>
             {isAdmin(user) && (
               <Button
                 component={RouterLink}
