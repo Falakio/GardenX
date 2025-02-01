@@ -1,52 +1,183 @@
-import React from 'react';
+import React from "react";
+import { Container, Typography, Box } from "@mui/material";
 
-const Plans = () => {
-  const containerStyle = {
-    padding: '20px',
-    fontFamily: 'Arial, sans-serif'
-  };
-
-  const planStyle = {
-    border: '1px solid #ddd',
-    padding: '20px',
-    marginBottom: '20px',
-    borderRadius: '5px'
-  };
-
-  const ulStyle = {
-    listStyleType: 'none',
-    padding: '0'
-  };
-
-  const liStyle = {
-    margin: '5px 0'
-  };
-
+const Credits = () => {
   return (
-    <div style={containerStyle}>
-      <h1>💰 Choose Your Plan</h1>
-      <div style={planStyle}>
-        <h2>🌱 Sapling Plan (299 AED/month)</h2>
-        <p>The foundation for schools to manage and sell their produce.</p>
-        <ul style={ulStyle}>
-          <li style={liStyle}>✔ Sales & order management</li>
-          <li style={liStyle}>✔ Inventory tracking</li>
-          <li style={liStyle}>✔ Analytics & reports</li>
-          <li style={liStyle}>✔ Customer database</li>
-        </ul>
-      </div>
-      <div style={planStyle}>
-        <h2>🌿 Bloom Plan (399 AED/month)</h2>
-        <p>For schools looking to scale and optimize their gardening operations.</p>
-        <ul style={ulStyle}>
-          <li style={liStyle}>✔ All Sapling features</li>
-          <li style={liStyle}>✔ AI-powered recommendations</li>
-          <li style={liStyle}>✔ Custom branding</li>
-          <li style={liStyle}>✔ Marketing & promotions</li>
-        </ul>
-      </div>
-    </div>
+    <Container
+      maxWidth="md"
+      sx={{
+        py: 4,
+        mt: 6,
+        position: "relative",
+        background: "rgba(255, 255, 255, 0.1)",
+        backdropFilter: "blur(10px)",
+        boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+        border: "1px solid rgba(255, 255, 255, 0.3)",
+        borderRadius: "15px",
+        textAlign: "center",
+      }}
+    >
+      <Typography variant="h2" gutterBottom sx={{ fontWeight: 600 }}>
+        GardenX Plans
+      </Typography>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-around",
+          alignItems: "center",
+          gap: 5,
+          // fixed width for the two plans
+          width: 800,
+          margin: "auto",
+        }}
+      >
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="h3">Sapling Plan</Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            AED 299 /{" "}
+            <Typography variant="body1" sx={{ ml: 0.5 }}>
+              month
+            </Typography>
+          </Typography>
+
+          <Typography variant="body1" sx={{ ml: 1 }}>
+            The foundation for schools to manage and sell their produce.
+          </Typography>
+
+          {/* unordered list */}
+          <Box
+            component="ul"
+            sx={{
+              listStyleType: "none",
+              p: 0,
+              m: 0,
+              mt: 2,
+              textAlign: "left",
+            }}
+          >
+            {[
+              "Sales & Order Management",
+              "Inventory Tracking",
+              "Analytics & Reports",
+              "Customer Management",
+              "Email Support",
+            ].map((item) => (
+              <Box
+                key={item}
+                component="li"
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  alignItems: "center",
+                  gap: 1,
+                  my: 1,
+                }}
+              >
+                <Typography variant="body1">✅</Typography>
+                <Typography variant="body1">{item}</Typography>
+              </Box>
+            ))}
+
+            
+          </Box>
+        </Box>
+
+        <Box
+          component="hr"
+          sx={{
+            height: "35vh",
+            border: "none",
+            borderLeft: "1px solid rgba(255, 255, 255, 1)",
+            mx: 1,
+          }}
+        />
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-around",
+            alignItems: "center",
+          }}
+        >
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="h3">Bloom Plan</Typography>
+            <Typography
+              variant="h5"
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              AED 399 /{" "}
+              <Typography variant="body1" sx={{ ml: 0.5 }}>
+                month
+              </Typography>
+            </Typography>
+
+            <Typography variant="body1" sx={{ ml: 1 }}>
+              For schools looking to scale and optimize their gardening
+              operations.
+            </Typography>
+
+            {/* unordered list */}
+            <Box
+              component="ul"
+              sx={{
+                listStyleType: "none",
+                p: 0,
+                m: 0,
+                mt: 2,
+                textAlign: "left",
+              }}
+            >
+              {[
+                "All Sapling Plan features",
+                "AI-powered Recommendations",
+                "Custom Branding",
+                "Marketing & SEO Tools",
+                "Priority Support",
+              ].map((item) => (
+                <Box
+                  key={item}
+                  component="li"
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    gap: 1,
+                    my: 1,
+                  }}
+                >
+                  <Typography variant="body1">✅</Typography>
+                  <Typography variant="body1">{item}</Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+            {/* contact us button */}
+            <Box sx={{ mt: 5, width: "100%",  backgroundColor: "#fff", borderRadius: 50, padding: 1 }} onClick={() => window.open("mailto: gardenx@falaknet.com")}>
+              <Typography variant="body1" sx={{width: "100%", textAlign: "center"}}>
+                <a
+                  href="mailto:gardenx@falaknet.com"
+                  style={{ textDecoration: "none", color: "#2c604a", width: "100%" }}
+                >
+                  Contact us
+                </a>{" "}
+              </Typography>
+            </Box>
+    </Container>
   );
 };
 
-export default Plans;
+export default Credits;
