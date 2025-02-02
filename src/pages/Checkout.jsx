@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+// Import the global styles index.css
+import "../index.css";
 import {
   Container,
   Typography,
@@ -19,8 +21,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { createOrder, getUserProfile } from "../services/supabase";
 import { sendEmail } from "../services/smtp";
-const ziinaAPI =
-  "LaNN8d3YmVp1TiOHifUYZcQy+ebWZ31dS1nPaUH5X8Of5Pq2+eXgDhdia55F0eUm"; // Replace with your actual API key
+
+const ziinaAPI = import.meta.env.ZIINA;
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -31,7 +33,6 @@ export default function Checkout() {
   const [profile, setProfile] = useState(null);
   const [orderMode, setOrderMode] = useState("pickup"); // Default to 'pickup'
   const [paymentMethod, setPaymentMethod] = useState("card"); // Default to 'cash'
-  const [orderCreated, setOrderCreated] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -69,18 +70,33 @@ export default function Checkout() {
   }, [cart, loading, navigate]);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const status = urlParams.get("status");
+    if (!loading && user && cart.length > 0) {
+      const params = new URLSearchParams(window.location.search);
+      const payStatus = params.get("status");
 
-    if (status === "success" && !orderCreated) {
-      setOrderCreated(true);
-      handleCreateOrder();
-    } else if (status === "failure") {
-      navigate("/checkout");
-    } else if (status === "cancel") {
-      navigate("/cart");
+      if (payStatus === "success") {
+        const orderData = {
+          user_id: user.id,
+          total_amount: total,
+          items: cart.map((item) => ({
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          mode: orderMode,
+        };
+        createOrder(orderData).then(() => {
+          clearCart();
+          navigate("/orders");
+        });
+      } else if (payStatus === "failure") {
+        navigate("/checkout");
+      } else if (payStatus === "cancel") {
+        navigate("/cart");
+      }
     }
-  }, [navigate, orderCreated]);
+  }, [loading, user, cart, orderMode, total, navigate, clearCart]);
 
   const handleOrderModeChange = (e) => {
     setOrderMode(e.target.value);
@@ -248,8 +264,15 @@ export default function Checkout() {
     );
   };
 
-  const handleCreateOrder = async () => {
+  const handleCheckout = async () => {
+    if (!user || !profile) return;
+
+    setLoading(true);
+    setError(null);
+
     try {
+      if (error) throw error;
+
       const orderData = {
         user_id: user.id,
         total_amount: total,
@@ -262,24 +285,6 @@ export default function Checkout() {
         mode: orderMode,
       };
 
-      const { data: order, error } = await createOrder(orderData);
-      if (error) throw error;
-
-      clearCart();
-      navigate("/orders");
-    } catch (error) {
-      console.error("Error creating order:", error);
-      setError(error.message);
-    }
-  };
-
-  const handleCheckout = async () => {
-    if (!user || !profile) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
       if (paymentMethod === "card") {
         const options = {
           method: "POST",
@@ -290,20 +295,29 @@ export default function Checkout() {
           body: JSON.stringify({
             amount: total * 100,
             currency_code: "AED",
-            test: true,
+            test: false,
             transaction_source: "directApi",
-            message: "Order Payment",
-            failure_url: window.location.origin + "/checkout?status=failure",
-            success_url: window.location.origin + "/checkout?status=success",
-            cancel_url: window.location.origin + "/checkout?status=cancel",
+            // GardenX Order:
+            // Item Name x1
+            // Item Name x2
+
+            // The length of each line should be 27 characters, fill the rest with spaces
+            message: "Payment on GardenX",
+            failure_url: window.location.href + "?status=failure",
+            success_url: window.location.href + "?status=success",
+            cancel_url: window.location.href + "?status=cancel",
           }),
         };
 
-        const response = await fetch("https://api-v2.ziina.com/api/payment_intent", options);
+        const response = await fetch(
+          "https://api-v2.ziina.com/api/payment_intent",
+          options
+        );
         const data = await response.json();
+        const paymentID = data.id;
         window.location.href = data.redirect_url;
-      } else {
-        handleCreateOrder();
+      } else if (paymentMethod === "cash") {
+        window.location.href = window.location.href + "?status=success";
       }
     } catch (error) {
       console.error("Error during checkout:", error);
@@ -365,7 +379,6 @@ export default function Checkout() {
           sx={{
             mt: { xs: 4, sm: 8 },
             p: { xs: 2, sm: 4 },
-
             background: "rgba(255, 255, 255, 0.1)",
             backdropFilter: "blur(10px)",
             boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
@@ -427,39 +440,47 @@ export default function Checkout() {
           </Typography>
 
           {(profile.role === "parent" || profile.role === "staff") && (
-            <FormControl component="fieldset" sx={{ mt: 2 }}>
-              <FormLabel component="legend">Order Mode</FormLabel>
-              <RadioGroup
-                row
-                name="orderMode"
-                value={orderMode}
-                onChange={handleOrderModeChange}
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Order Mode
+              </Typography>
+              <Button
+                variant={orderMode === "pickup" ? "contained" : "outlined"}
+                onClick={() => setOrderMode("pickup")}
+                sx={{ mr: 2 }}
               >
-                <FormControlLabel
-                  value="pickup"
-                  control={<Radio />}
-                  label="Pickup"
-                />
-                <FormControlLabel
-                  value="delivery"
-                  control={<Radio />}
-                  label="Delivery"
-                />
-              </RadioGroup>
-            </FormControl>
+                Pickup
+              </Button>
+              <Button
+                variant={orderMode === "delivery" ? "contained" : "outlined"}
+                onClick={() => setOrderMode("delivery")}
+              >
+                Delivery
+              </Button>
+            </Box>
           )}
-          <FormControl component="fieldset" sx={{ mt: 2 }}>
-            <FormLabel component="legend">Payment Method</FormLabel>
-            <RadioGroup
-              row
-              name="paymentMethod"
-              value={paymentMethod}
-              onChange={handlePaymentMethodChange}
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Payment Method
+            </Typography>
+            <Button
+              variant={paymentMethod === "card" ? "contained" : "outlined"}
+              onClick={() => setPaymentMethod("card")}
+              sx={{ mr: 2 }}
+              style={{ color: "white", outline: "0.5px solid white" }}
+
             >
-              <FormControlLabel value="card" control={<Radio />} label="Card" />
-              <FormControlLabel value="cash" control={<Radio />} label="Cash" />
-            </RadioGroup>
-          </FormControl>
+              Card (Apple Pay / Google Pay)
+            </Button>
+            <Button
+              variant={paymentMethod === "cash" ? "contained" : "outlined"}
+              onClick={() => setPaymentMethod("cash")}
+              style={{ color: "white", outline: "0.5px solid white" }}
+
+            >
+              Cash
+            </Button>
+          </Box>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
             <Button
               variant="contained"
