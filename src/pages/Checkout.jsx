@@ -18,7 +18,9 @@ import { ArrowBack } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { createOrder, getUserProfile } from "../services/supabase";
-// import { sendEmail } from '../services/smtp';
+import { sendEmail } from "../services/smtp";
+const ziinaAPI =
+  "LaNN8d3YmVp1TiOHifUYZcQy+ebWZ31dS1nPaUH5X8Of5Pq2+eXgDhdia55F0eUm"; // Replace with your actual API key
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -28,6 +30,8 @@ export default function Checkout() {
   const [error, setError] = useState(null);
   const [profile, setProfile] = useState(null);
   const [orderMode, setOrderMode] = useState("pickup"); // Default to 'pickup'
+  const [paymentMethod, setPaymentMethod] = useState("card"); // Default to 'cash'
+  const [orderCreated, setOrderCreated] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -64,8 +68,26 @@ export default function Checkout() {
     }
   }, [cart, loading, navigate]);
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get("status");
+
+    if (status === "success" && !orderCreated) {
+      setOrderCreated(true);
+      handleCreateOrder();
+    } else if (status === "failure") {
+      navigate("/checkout");
+    } else if (status === "cancel") {
+      navigate("/cart");
+    }
+  }, [navigate, orderCreated]);
+
   const handleOrderModeChange = (e) => {
     setOrderMode(e.target.value);
+  };
+
+  const handlePaymentMethodChange = (e) => {
+    setPaymentMethod(e.target.value);
   };
 
   const generateInvoiceHtml = (
@@ -226,12 +248,7 @@ export default function Checkout() {
     );
   };
 
-  const handleCheckout = async () => {
-    if (!user || !profile) return;
-
-    setLoading(true);
-    setError(null);
-
+  const handleCreateOrder = async () => {
     try {
       const orderData = {
         user_id: user.id,
@@ -248,11 +265,46 @@ export default function Checkout() {
       const { data: order, error } = await createOrder(orderData);
       if (error) throw error;
 
-      // const invoiceHtml = generateInvoiceHtml(profile, cart, total, orderMode, order.id, order.status);
-      // await sendEmail(profile.email, 'Your Order Invoice', 'Thank you for your order!', invoiceHtml);
-
       clearCart();
       navigate("/orders");
+    } catch (error) {
+      console.error("Error creating order:", error);
+      setError(error.message);
+    }
+  };
+
+  const handleCheckout = async () => {
+    if (!user || !profile) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (paymentMethod === "card") {
+        const options = {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + ziinaAPI,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount: total * 100,
+            currency_code: "AED",
+            test: true,
+            transaction_source: "directApi",
+            message: "Order Payment",
+            failure_url: window.location.origin + "/checkout?status=failure",
+            success_url: window.location.origin + "/checkout?status=success",
+            cancel_url: window.location.origin + "/checkout?status=cancel",
+          }),
+        };
+
+        const response = await fetch("https://api-v2.ziina.com/api/payment_intent", options);
+        const data = await response.json();
+        window.location.href = data.redirect_url;
+      } else {
+        handleCreateOrder();
+      }
     } catch (error) {
       console.error("Error during checkout:", error);
       setError(error.message);
@@ -396,6 +448,18 @@ export default function Checkout() {
               </RadioGroup>
             </FormControl>
           )}
+          <FormControl component="fieldset" sx={{ mt: 2 }}>
+            <FormLabel component="legend">Payment Method</FormLabel>
+            <RadioGroup
+              row
+              name="paymentMethod"
+              value={paymentMethod}
+              onChange={handlePaymentMethodChange}
+            >
+              <FormControlLabel value="card" control={<Radio />} label="Card" />
+              <FormControlLabel value="cash" control={<Radio />} label="Cash" />
+            </RadioGroup>
+          </FormControl>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
             <Button
               variant="contained"
