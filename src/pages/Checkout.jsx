@@ -22,7 +22,7 @@ import { useCart } from "../contexts/CartContext";
 import { createOrder, getUserProfile } from "../services/supabase";
 import { sendEmail } from "../services/smtp";
 
-const ziinaAPI = import.meta.env.ZIINA;
+const ziinaAPI = import.meta.env.VITE_ZIINA_API_KEY;
 
 export default function Checkout() {
   const navigate = useNavigate();
