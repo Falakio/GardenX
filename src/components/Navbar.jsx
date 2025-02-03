@@ -25,6 +25,7 @@ import {
 import {
   ShoppingCart as ShoppingCartIcon,
   Menu as MenuIcon,
+  Close as CloseIcon, // <-- new import for cross mark
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
@@ -44,6 +45,10 @@ function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("md")); // Check if the screen size is mobile
+  const [menuButtonPosition, setMenuButtonPosition] = useState({ top: 0, left: 0 });
+
+  // Inside the component, compute the max radius for full expansion.
+  const maxRadius = Math.hypot(window.innerWidth, window.innerHeight);
 
   useEffect(() => {
     const fetchSchools = async () => {
@@ -87,65 +92,68 @@ function Navbar() {
     navigate(`/shop?search=${searchQuery}`);
   };
 
+  const handleMenuButtonClick = (event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setMenuButtonPosition({ top: rect.top + rect.height / 2, left: rect.left + rect.width / 2 });
+    handleDrawerToggle();
+  };
+
   const drawer = (
     <Box
-      sx={{ width: 250, background: "#ffd079", height: "100%" }}
+      sx={{ width: '100%', height: '100%', color: "white" }} // Cover the entire screen
       onClick={handleDrawerToggle}
     >
-      <Typography variant="h6" sx={{ my: 2, textAlign: "center" }}>
-        <img src={logo} alt="Logo" style={{ height: 40 }} />
-      </Typography>
-      <Divider />
       <List>
         {!isAdmin(user) && user && (
-          <ListItem component={RouterLink} to="/shop">
+          <ListItem component={RouterLink} to="/shop" button>
             <ListItemText primary="Shop" />
           </ListItem>
         )}
-        <ListItem component={RouterLink} to="/plans">
+        <ListItem component={RouterLink} to="/plans" button>
           <ListItemText primary="Pricing Plans" />
         </ListItem>
         {!isAdmin(user) && user && (
-          <ListItem component={RouterLink} to="/orders">
+          <ListItem component={RouterLink} to="/orders" button>
             <ListItemText primary="Orders" />
           </ListItem>
         )}
         {!isAdmin(user) && user && (
-          <ListItem component={RouterLink} to="/profile">
+          <ListItem component={RouterLink} to="/profile" button>
             <ListItemText primary="Profile" />
           </ListItem>
         )}
         {isAdmin(user) && user && (
-          <ListItem component={RouterLink} to="/admin">
+          <ListItem component={RouterLink} to="/admin" button>
             <ListItemText primary="Dashboard" />
           </ListItem>
         )}
         {isAdmin(user) && user && (
-          <ListItem component={RouterLink} to="/admin/products">
+          <ListItem component={RouterLink} to="/admin/products" button>
             <ListItemText primary="Products" />
           </ListItem>
         )}
         {isAdmin(user) && user && (
-          <ListItem component={RouterLink} to="/admin/orders">
+          <ListItem component={RouterLink} to="/admin/orders" button>
             <ListItemText primary="Orders" />
           </ListItem>
         )}
         {isAdmin(user) && user && (
-          <ListItem component={RouterLink} to="/admin/manual-entry">
+          <ListItem component={RouterLink} to="/admin/manual-entry" button>
             <ListItemText primary="New Order" />
           </ListItem>
         )}
 
-        <Divider />
+        <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.12)", mb: 1 }} />
         <ListItem>
           <FormControl sx={{ minWidth: 120, width: "100%" }}>
-            <InputLabel id="school-select-label">School</InputLabel>
+            <InputLabel id="school-select-label" sx={{ color: "white" }}>School</InputLabel>
             <Select
               labelId="school-select-label"
               id="school-select"
               value={selectedSchool}
               onChange={handleSchoolChange}
               label="School"
+              sx={{ color: "white"}}
             >
               {schools.map((school) => (
                 <MenuItem key={school.id} value={school.id}>
@@ -163,9 +171,10 @@ function Navbar() {
             <ListItemText primary="Cart" />
           </ListItem>
         )}
-        <Divider />
+        <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.12)" }} />
         {user ? (
           <ListItem
+            button
             onClick={() => {
               signOut();
               navigate("/login");
@@ -174,7 +183,7 @@ function Navbar() {
             <ListItemText primary="Logout" />
           </ListItem>
         ) : (
-          <ListItem component={RouterLink} to="/login">
+          <ListItem component={RouterLink} to="/login" button>
             <ListItemText primary="Login" />
           </ListItem>
         )}
@@ -232,18 +241,61 @@ function Navbar() {
               />
             </Typography>
 
-            <Drawer
-              anchor="left"
-              open={mobileOpen}
-              onClose={handleDrawerToggle}
-              ModalProps={
-                {
-                  // Better open performance on mobile.
-                }
-              }
+            <Box
+              sx={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: mobileOpen ? 'linear-gradient(135deg, #2c604a, #3e8a75)' : '#2c604a',
+                zIndex: 1300,
+                pointerEvents: mobileOpen ? 'auto' : 'none',
+                opacity: mobileOpen ? 1 : 0,
+                transition: 'clip-path 1.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease-out',
+                clipPath: mobileOpen
+                  ? `circle(${maxRadius}px at ${menuButtonPosition.left}px ${menuButtonPosition.top}px)`
+                  : `circle(0px at ${menuButtonPosition.left}px ${menuButtonPosition.top}px)`,
+                boxShadow: 'inset 0 0 30px rgba(0,0,0,0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onClick={handleDrawerToggle}
             >
-              {drawer}
-            </Drawer>
+              <Box
+                sx={{
+                  position: 'relative',
+                  width: '90%',
+                  maxWidth: '400px',
+                  background: 'linear-gradient(135deg, #395144, #2c604a)',
+                  borderRadius: 3,
+                  overflow: "hidden",
+                  boxShadow: '0 8px 20px rgba(0,0,0,0.6)',
+                  p: 0,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    p: 2,
+                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                  }}
+                >
+                  <Typography variant="h6" sx={{ color: '#fff', display: 'flex', alignItems: 'center', gap: 2 }}> 
+                    <img src={logo} alt="Logo" style={{ height: 40 }} /> <Typography variant="h6">GardenX</Typography>
+                  </Typography>
+                  <IconButton onClick={handleDrawerToggle} sx={{ color: '#fff' }}>
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+                <Box sx={{ p: 2, color: '#fff' }}>
+                  {drawer}
+                </Box>
+              </Box>
+            </Box>
           </Box>
 
           <Box
@@ -411,7 +463,7 @@ function Navbar() {
             <IconButton
               size="large"
               aria-label="open drawer"
-              onClick={handleDrawerToggle}
+              onClick={handleMenuButtonClick} // Use the new click handler
               color="inherit"
               sx={{ mr: 0, color: "white", marginTop: 2 }}
             >
