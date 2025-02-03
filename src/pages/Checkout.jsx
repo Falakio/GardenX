@@ -32,7 +32,12 @@ export default function Checkout() {
   const [error, setError] = useState(null);
   const [profile, setProfile] = useState(null);
   const [orderMode, setOrderMode] = useState("pickup"); // Default to 'pickup'
-  const [paymentMethod, setPaymentMethod] = useState("card"); // Default to 'cash'
+  // const [paymentMethod, setPaymentMethod] = useState("card"); // Default to 'cash' if total < 10 or 'card' if total >= 10
+
+  const [paymentMethod, setPaymentMethod] = useState(() => {
+    if (total < 10) return "cash";
+    return "card";
+  });
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -285,7 +290,11 @@ export default function Checkout() {
         mode: orderMode,
       };
 
-      if (paymentMethod === "card") {
+      if (
+        paymentMethod === "card" ||
+        paymentMethod === "applepay" ||
+        paymentMethod === "googlepay"
+      ) {
         const options = {
           method: "POST",
           headers: {
@@ -297,12 +306,9 @@ export default function Checkout() {
             currency_code: "AED",
             test: false,
             transaction_source: "directApi",
-            // GardenX Order:
-            // Item Name x1
-            // Item Name x2
 
-            // The length of each line should be 27 characters, fill the rest with spaces
             message: "Payment on GardenX",
+
             failure_url: window.location.href + "?status=failure",
             success_url: window.location.href + "?status=success",
             cancel_url: window.location.href + "?status=cancel",
@@ -463,23 +469,102 @@ export default function Checkout() {
             <Typography variant="h6" gutterBottom>
               Payment Method
             </Typography>
-            <Button
-              variant={paymentMethod === "card" ? "contained" : "outlined"}
-              onClick={() => setPaymentMethod("card")}
-              sx={{ mr: 2 }}
-              style={{ color: "white", outline: "0.5px solid white" }}
-
+            {/* <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}> FLEX IN COLUMN ONLY ON PHONE*/}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                gap:2,
+              }}
             >
-              Card (Apple Pay / Google Pay)
-            </Button>
-            <Button
-              variant={paymentMethod === "cash" ? "contained" : "outlined"}
-              onClick={() => setPaymentMethod("cash")}
-              style={{ color: "white", outline: "0.5px solid white" }}
+              <Button
+                variant={paymentMethod === "card" ? "contained" : "outlined"}
+                onClick={() => setPaymentMethod("card")}
+                disabled={total < 10}
+                sx={{
+                  outline: "0.5px solid white",
+                  alignItems: "center",
+                  fontSize: "1rem",
+                  backgroundColor:
+                    paymentMethod === "card" ? "rgb(35, 3, 69)" : "inherit",
+                  color: paymentMethod === "card" ? "white" : "white",
+                  ":hover": {
+                    backgroundColor: "rgb(150, 38, 255)",
+                    color: "white",
+                  },
+                }}
+              >
+                <span sx={{ ml: 2 }}>
+                  <i className="far fa-credit-card" sx={{ px: 2 }}></i> Card
+                </span>
+              </Button>
+              <Button
+                variant={paymentMethod === "cash" ? "contained" : "outlined"}
+                onClick={() => setPaymentMethod("cash")}
+                style={{
+                  color: "white",
+                  outline: "0.5px solid white",
+                  fontSize: "1rem",
+                  backgroundColor:
+                    paymentMethod === "cash" ? "darkgreen" : "inherit",
+                  ":hover": {
+                    backgroundColor: "rgb(255, 100, 100)",
+                    color: "black",
+                  },
+                }}
+              >
+                <span sx={{ ml: 2 }}>
+                  <i className="far fa-money-bill" sx={{ px: 2 }}></i> Cash
+                </span>
+              </Button>
 
-            >
-              Cash
-            </Button>
+              <Button
+                variant={
+                  paymentMethod === "applepay" ? "contained" : "outlined"
+                }
+                onClick={() => setPaymentMethod("applepay")}
+                disabled={total < 10}
+                sx={{
+                  color: "white",
+                  outline: "0.5px solid white",
+                  alignItems: "center",
+                  fontSize: "1rem",
+                  backgroundColor:
+                    paymentMethod === "applepay" ? "black" : "inherit",
+                  ":hover": { backgroundColor: "gray", color: "black" },
+                }}
+              >
+                <span sx={{ ml: 2 }}>
+                  <i className="fab fa-apple" sx={{ px: 2 }}></i> Apple Pay
+                </span>
+              </Button>
+
+              <Button
+                variant={
+                  paymentMethod === "googlepay" ? "contained" : "outlined"
+                }
+                onClick={() => setPaymentMethod("googlepay")}
+                disabled={total < 10}
+                sx={{
+                  color: "white",
+                  outline: "0.5px solid white",
+                  alignItems: "center",
+                  fontSize: "1rem",
+                  backgroundColor:
+                    paymentMethod === "googlepay"
+                      ? "rgb(255, 0, 0)"
+                      : "inherit",
+                  ":hover": {
+                    backgroundColor: "rgb(255, 50, 50)",
+                    color: "black",
+                  },
+                }}
+              >
+                <span sx={{ ml: 2 }}>
+                  <i className="fab fa-google" sx={{ px: 2 }}></i> Google Pay
+                </span>
+              </Button>
+            </Box>
           </Box>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
             <Button
