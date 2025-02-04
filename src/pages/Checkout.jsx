@@ -15,6 +15,11 @@ import {
   FormControlLabel,
   FormControl,
   FormLabel,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
@@ -427,19 +432,27 @@ export default function Checkout() {
                 {profile.details.staff_gems_id}
               </Typography>
             </Box>
-          )}
-
-          <Typography variant="h6" sx={{ mt: 3 }}>
-            Items:
-          </Typography>
-          {cart.map((item) => (
-            <Box key={item.id} sx={{ mt: 1 }}>
-              <Typography>
-                {item.name} x {item.quantity} = AED{" "}
-                {(item.price * item.quantity).toFixed(2)}
-              </Typography>
-            </Box>
-          ))}
+          )}  
+          <Table >
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{color: "white"}}>Item</TableCell>
+                <TableCell align="right" sx={{color: "white"}}>Quantity</TableCell>
+                <TableCell align="right" sx={{color: "white"}}>Price</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody >
+              {cart.map((item) => (
+                <TableRow key={item.id} >
+                  <TableCell sx={{color: "white"}}>{item.name}</TableCell>
+                  <TableCell align="right" sx={{color: "white"}}>{item.quantity}</TableCell>
+                  <TableCell align="right" sx={{color: "white"}}>
+                    AED {(item.price * item.quantity).toFixed(2)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
           <Typography variant="h6" sx={{ mt: 3 }}>
             Total: AED {total.toFixed(2)}
@@ -473,8 +486,11 @@ export default function Checkout() {
             <Box
               sx={{
                 display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                gap:2,
+                flexDirection: { xs: "row", sm: "row" },
+                flexWrap: "wrap",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 2,
               }}
             >
               <Button
@@ -482,14 +498,15 @@ export default function Checkout() {
                 onClick={() => setPaymentMethod("card")}
                 disabled={total < 10}
                 sx={{
-                  outline: "0.5px solid white",
                   alignItems: "center",
                   fontSize: "1rem",
+                  borderRadius: "20px 5px",
+
                   backgroundColor:
                     paymentMethod === "card" ? "rgb(35, 3, 69)" : "inherit",
                   color: paymentMethod === "card" ? "white" : "white",
                   ":hover": {
-                    backgroundColor: "rgb(150, 38, 255)",
+                    backgroundColor: "rgb(35, 3, 69)",
                     color: "white",
                   },
                 }}
@@ -503,13 +520,13 @@ export default function Checkout() {
                 onClick={() => setPaymentMethod("cash")}
                 style={{
                   color: "white",
-                  outline: "0.5px solid white",
+                  borderRadius: "20px 5px",
                   fontSize: "1rem",
                   backgroundColor:
                     paymentMethod === "cash" ? "darkgreen" : "inherit",
                   ":hover": {
-                    backgroundColor: "rgb(255, 100, 100)",
-                    color: "black",
+                    backgroundColor: "darkgreen",
+                    color: "white",
                   },
                 }}
               >
@@ -526,12 +543,12 @@ export default function Checkout() {
                 disabled={total < 10}
                 sx={{
                   color: "white",
-                  outline: "0.5px solid white",
                   alignItems: "center",
                   fontSize: "1rem",
+                  borderRadius: "20px 5px",
                   backgroundColor:
                     paymentMethod === "applepay" ? "black" : "inherit",
-                  ":hover": { backgroundColor: "gray", color: "black" },
+                  ":hover": { backgroundColor: "black", color: "white " },
                 }}
               >
                 <span sx={{ ml: 2 }}>
@@ -547,16 +564,15 @@ export default function Checkout() {
                 disabled={total < 10}
                 sx={{
                   color: "white",
-                  outline: "0.5px solid white",
                   alignItems: "center",
                   fontSize: "1rem",
+                  borderRadius: "20px 5px",
+
                   backgroundColor:
-                    paymentMethod === "googlepay"
-                      ? "rgb(255, 0, 0)"
-                      : "inherit",
+                    paymentMethod === "googlepay" ? "red" : "inherit",
                   ":hover": {
-                    backgroundColor: "rgb(255, 50, 50)",
-                    color: "black",
+                    backgroundColor: "red",
+                    color: "white",
                   },
                 }}
               >

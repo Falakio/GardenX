@@ -45,7 +45,10 @@ function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("md")); // Check if the screen size is mobile
-  const [menuButtonPosition, setMenuButtonPosition] = useState({ top: 0, left: 0 });
+  const [menuButtonPosition, setMenuButtonPosition] = useState({
+    top: 0,
+    left: 0,
+  });
 
   // Inside the component, compute the max radius for full expansion.
   const maxRadius = Math.hypot(window.innerWidth, window.innerHeight);
@@ -94,13 +97,16 @@ function Navbar() {
 
   const handleMenuButtonClick = (event) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    setMenuButtonPosition({ top: rect.top + rect.height / 2, left: rect.left + rect.width / 2 });
+    setMenuButtonPosition({
+      top: rect.top + rect.height / 2,
+      left: rect.left + rect.width / 2,
+    });
     handleDrawerToggle();
   };
 
   const drawer = (
     <Box
-      sx={{ width: '100%', height: '100%', color: "white" }} // Cover the entire screen
+      sx={{ width: "100%", height: "100%", color: "white" }} // Cover the entire screen
       onClick={handleDrawerToggle}
     >
       <List>
@@ -109,9 +115,7 @@ function Navbar() {
             <ListItemText primary="Shop" />
           </ListItem>
         )}
-        <ListItem component={RouterLink} to="/plans" button>
-          <ListItemText primary="Pricing Plans" />
-        </ListItem>
+
         {!isAdmin(user) && user && (
           <ListItem component={RouterLink} to="/orders" button>
             <ListItemText primary="Orders" />
@@ -142,18 +146,22 @@ function Navbar() {
             <ListItemText primary="New Order" />
           </ListItem>
         )}
-
+        {/* <ListItem component={RouterLink} to="/plans" button>
+          <ListItemText primary="Pricing Plans" />
+        </ListItem> */}
         <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.12)", mb: 1 }} />
         <ListItem>
           <FormControl sx={{ minWidth: 120, width: "100%" }}>
-            <InputLabel id="school-select-label" sx={{ color: "white" }}>School</InputLabel>
+            <InputLabel id="school-select-label" sx={{ color: "white" }}>
+              School
+            </InputLabel>
             <Select
               labelId="school-select-label"
               id="school-select"
               value={selectedSchool}
               onChange={handleSchoolChange}
               label="School"
-              sx={{ color: "white"}}
+              sx={{ color: "white" }}
             >
               {schools.map((school) => (
                 <MenuItem key={school.id} value={school.id}>
@@ -189,12 +197,10 @@ function Navbar() {
         )}
       </List>
 
-      <Box sx={{ flexGrow: 1 }} />
+      {/* Footer at the bottom */}
+      <Box sx={{ flexGrow: 1, mt: 20 }} />
       <Typography variant="body2" sx={{ textAlign: "center", mb: 2 }}>
-        Copyright &copy; 2025 GardenX
-      </Typography>
-      <Typography variant="body2" sx={{ textAlign: "center", mb: 2 }}>
-        All Rights Reserved.
+        Copyright &copy; 2025 GardenX. All Rights Reserved.
       </Typography>
       <Typography variant="body2" sx={{ textAlign: "center", mb: 2 }}>
         Al Falak Network
@@ -243,57 +249,75 @@ function Navbar() {
 
             <Box
               sx={{
-                position: 'fixed',
+                position: "fixed",
                 top: 0,
                 left: 0,
-                width: '100%',
-                height: '100%',
-                background: mobileOpen ? 'linear-gradient(135deg, #2c604a, #3e8a75)' : '#2c604a',
+                width: "100%",
+                height: "100%",
+                background: mobileOpen
+                  ? "linear-gradient(135deg, #2c604a, #3e8a75)"
+                  : "#2c604a",
                 zIndex: 1300,
-                pointerEvents: mobileOpen ? 'auto' : 'none',
+                pointerEvents: mobileOpen ? "auto" : "none",
                 opacity: mobileOpen ? 1 : 0,
-                transition: 'clip-path 1.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease-out',
+                transition:
+                  "clip-path 1.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease-out",
                 clipPath: mobileOpen
                   ? `circle(${maxRadius}px at ${menuButtonPosition.left}px ${menuButtonPosition.top}px)`
                   : `circle(0px at ${menuButtonPosition.left}px ${menuButtonPosition.top}px)`,
-                boxShadow: 'inset 0 0 30px rgba(0,0,0,0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                boxShadow: "inset 0 0 30px rgba(0,0,0,0.3)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
               onClick={handleDrawerToggle}
             >
               <Box
+                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
                 sx={{
-                  position: 'relative',
-                  width: '90%',
-                  maxWidth: '400px',
-                  background: 'linear-gradient(135deg, #395144, #2c604a)',
+                  position: "relative",
+                  bottom: 50,
+                  width: "90%",
+                  height: "80%",
+                  maxWidth: "400px",
                   borderRadius: 3,
                   overflow: "hidden",
-                  boxShadow: '0 8px 20px rgba(0,0,0,0.6)',
+                  background: "rgba(255, 255, 255, 0.1)",
+                  backdropFilter: "blur(10px)",
+                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                  border: "1px solid rgba(255, 255, 255, 0.3)",
+                  color: "white",
                   p: 0,
                 }}
               >
                 <Box
                   sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                     p: 2,
-                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
                   }}
                 >
-                  <Typography variant="h6" sx={{ color: '#fff', display: 'flex', alignItems: 'center', gap: 2 }}> 
-                    <img src={logo} alt="Logo" style={{ height: 40 }} /> <Typography variant="h6">GardenX</Typography>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: "#fff",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                    }}
+                  >
+                    <img src={logo} alt="Logo" style={{ height: 40 }} />{" "}
+                    <Typography variant="h6">GardenX</Typography>
                   </Typography>
-                  <IconButton onClick={handleDrawerToggle} sx={{ color: '#fff' }}>
+                  <IconButton
+                    onClick={handleDrawerToggle}
+                    sx={{ color: "#fff" }}
+                  >
                     <CloseIcon />
                   </IconButton>
                 </Box>
-                <Box sx={{ p: 2, color: '#fff' }}>
-                  {drawer}
-                </Box>
+                <Box sx={{ p: 2, color: "#fff" }}>{drawer}</Box>
               </Box>
             </Box>
           </Box>
@@ -319,8 +343,6 @@ function Navbar() {
                 Shop
               </Button>
             )}
-
-            
 
             {!isAdmin(user) && user && (
               <Button
@@ -351,7 +373,7 @@ function Navbar() {
                 Profile
               </Button>
             )}
-            <Button
+            {/* <Button
               component={RouterLink}
               to="/plans"
               sx={{
@@ -362,7 +384,7 @@ function Navbar() {
               }}
             >
               Pricing Plans
-            </Button>
+            </Button> */}
             {isAdmin(user) && (
               <Button
                 component={RouterLink}
