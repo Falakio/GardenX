@@ -1,7 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import logo from "../assets/logo.png"; // Adjust the path to your logo
 import "../index.css"; // Import the global styles
-
 function SplashScreen() {
   return (
     <Box
@@ -19,5 +18,4 @@ function SplashScreen() {
     </Box>
   );
 }
-
 export default SplashScreen;

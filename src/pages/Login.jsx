@@ -109,8 +109,20 @@ function Login() {
           centered
           sx={{ mb: 3 }}
         >
-          <Tab label="Sign In" />
-          <Tab label="Sign Up" />
+          <Tab
+            label="Sign In"
+            sx={{
+              color: tab === 0 ? "white" : "lightgray",
+              "&.Mui-selected": { color: "white", borderBottom: "1px solid white" },
+            }}
+          />
+          <Tab
+            label="Sign Up"
+            sx={{
+              color: tab === 1 ? "white" : "lightgray",
+              "&.Mui-selected": { color: "white", borderBottom: "1px solid white" },
+            }}
+          />
         </Tabs>
         {tab === 0 ? (
           <>
@@ -144,6 +156,18 @@ function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
+                sx={{
+                  color: "white",
+                  borderColor: "white",
+                  "& .MuiInputBase-input": { color: "white" },
+                  "& .MuiInputLabel-root": { color: "white" },
+                  "& .MuiInput-focused": { color: "white" },
+                  "& .MuiOutlinedInput-root": { color: "white" },
+                  "& .MuiInputFocused": { color: "white" },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "white",
+                  },
+                }}
               />
               <TextField
                 margin="normal"
@@ -156,6 +180,18 @@ function Login() {
                 autoComplete="current-password"
                 value={password}
                 onChange={handlePasswordChange}
+                sx={{
+                  color: "white",
+                  borderColor: "white",
+                  "& .MuiInputBase-input": { color: "white" },
+                  "& .MuiInputLabel-root": { color: "white" },
+                  "& .MuiInput-focused": { color: "white" },
+                  "& .MuiInputFocused": { color: "white" },
+                  "& .MuiOutlinedInput-root": { color: "white" },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "white",
+                  },
+                }}
                 disabled={loading}
               />
               <Button
@@ -178,7 +214,6 @@ function Login() {
             >
               <Button
                 variant="outlined"
-
                 onClick={handleSendMagicLink}
                 fullWidth
                 startIcon={<MagicIcon />}

@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   Button,
   Card,
-  CardMedia,
   IconButton,
   Typography,
   Box,
@@ -12,8 +11,8 @@ import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
 import StockStatus from "./StockStatus";
 
 function ProductCard({ product, onAddToCart, showAddToCart = true }) {
-  const { name, price, image_url, stock_quantity, category } = product;
-  const [quantity, setQuantity] = useState(1);
+  const { name, price, image_url, stock_quantity, category, weight } = product;
+  const [quantity, setQuantity] = useState(0); 
   const [showSuccess, setShowSuccess] = useState(false);
 
   const hasStock = stock_quantity > 0;
@@ -25,14 +24,17 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
   };
 
   const handleDecrement = () => {
-    setQuantity((prev) => Math.max(1, prev - 1));
+    setQuantity((prev) => Math.max(0, prev - 1)); // Ensure quantity doesn't go below 0
   };
 
   const handleAddToCart = () => {
     onAddToCart(product, quantity);
-    setQuantity(1);
+    setQuantity(0); // Reset quantity to 0 after adding to cart
     setShowSuccess(true);
   };
+
+  const totalPrice = price * (quantity || 1); // Show price for 1 even if quantity is 0
+  const totalWeight = weight ? weight * quantity : null;
 
   return (
     <>
@@ -43,7 +45,7 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
           display: "flex",
           flexDirection: "column",
           position: "relative",
-          background: `url(${image_url}) no-repeat center center / contain`,
+          background: `url(${image_url}) no-repeat center center / cover`,
           backdropFilter: "blur(10px)",
           boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
           border: "1px solid rgba(255, 255, 255, 0.3)",
@@ -79,7 +81,7 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
           <Box
             sx={{
               p: 2,
-              width: "100%",  
+              width: "100%",
               backgroundColor: "#ffd079",
               borderRadius: "30px 5px",
             }}
@@ -115,18 +117,32 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
                 {category}
               </Typography>
             </Box>
-           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-           <Typography
-              variant="h6"
-              color="primary"
-              sx={{
-                mb: 1,
-                fontSize: "1rem",
-                fontWeight: "bold",
-              }}
-            >
-              AED {price.toFixed(2)}
-            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography
+                variant="h6"
+                color="primary"
+                sx={{
+                  mb: 1,
+                  fontSize: "1rem",
+                  fontWeight: "bold",
+                }}
+              >
+                AED {totalPrice.toFixed(2)}
+              </Typography>
+              {totalWeight && (
+                <Typography
+                  variant="h6"
+                  color="primary"
+                  sx={{
+                    mb: 1,
+                    fontSize: "1rem",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {totalWeight.toFixed(2)} kg
+                </Typography>
+              )}
+            </Box>
 
             <Box
               sx={{
@@ -141,7 +157,7 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
               <IconButton
                 size="small"
                 onClick={handleDecrement}
-                disabled={!hasStock || quantity <= 1}
+                disabled={!hasStock || quantity <= 0}
               >
                 <RemoveIcon />
               </IconButton>
@@ -153,28 +169,34 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
               >
                 <AddIcon />
               </IconButton>
-            <Button
-              variant="contained"
-              fullWidth
-              onClick={handleAddToCart}
-              disabled={!hasStock}
-              sx={{
-                borderRadius: 1,
-                ":hover": { color: "#fff" },
-                background: "transparent",
-                opacity: hasStock ? 1 : 0.6,
-                border: "1px solid",
-                color: "black",
-                "&.Mui-disabled": {
-                  backgroundColor: (theme) => theme.palette.primary.main,
-                  color: "white",
-                  opacity: 0.6,
-                },
-              }}
-            >
-              {hasStock ? <i class="fas fa-shopping-cart" style={{ fontSize: "20px" }}></i> : "Out of Stock"}
-            </Button>
-            </Box>
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={handleAddToCart}
+                disabled={!hasStock || quantity === 0}
+                sx={{
+                  borderRadius: 1,
+                  ":hover": { color: "#fff" },
+                  background: "transparent",
+                  opacity: hasStock ? 1 : 0.6,
+                  border: "1px solid",
+                  color: "black",
+                  "&.Mui-disabled": {
+                    backgroundColor: (theme) => theme.palette.primary.main,
+                    color: "white",
+                    opacity: 0.6,
+                  },
+                }}
+              >
+                {hasStock ? (
+                  <i
+                    className="fas fa-shopping-cart"
+                    style={{ fontSize: "20px" }}
+                  ></i>
+                ) : (
+                  "Out of Stock"
+                )}
+              </Button>
             </Box>
           </Box>
         )}
@@ -184,16 +206,11 @@ function ProductCard({ product, onAddToCart, showAddToCart = true }) {
         autoHideDuration={2000}
         onClose={() => setShowSuccess(false)}
         message="Added to cart"
-        
-        // desktop anchorOrigin vertical bottom horizontal right
-        // mobile anchorOrigin vertical top horizontal center
         anchorOrigin={
           window.innerWidth > 600
             ? { vertical: "bottom", horizontal: "right" }
             : { vertical: "top", horizontal: "center" }
         }
-
-
         sx={{ zIndex: 9999 }}
       />
     </>

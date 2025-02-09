@@ -45,13 +45,13 @@ function AdminDashboard() {
     const checkAdmin = async () => {
       try {
         if (!user) {
-          setError("Please sign in to access the admin panel");
+          console.log("Please sign in to access the admin panel");
           navigate("/");
           return;
         }
 
         if (!isAdmin(user)) {
-          setError("You do not have admin privileges");
+          console.log("You do not have admin privileges");
           navigate("/");
           return;
         }
@@ -71,18 +71,20 @@ function AdminDashboard() {
     try {
       setLoading(true);
       setError(null);
-  
+
       // Fetch orders
       const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select("*")
         .order("created_at", { ascending: false });
-  
+
       if (ordersError) throw ordersError;
-  
+
       // Filter delivered orders
-      const deliveredOrders = ordersData.filter(order => order.status === 'delivered');
-  
+      const deliveredOrders = ordersData.filter(
+        (order) => order.status === "delivered"
+      );
+
       // Process analytics data
       const revenue = deliveredOrders.reduce(
         (sum, order) => sum + Number(order.total_amount),
@@ -90,7 +92,7 @@ function AdminDashboard() {
       );
       const productCounts = {};
       const dailyRevenue = {};
-  
+
       deliveredOrders.forEach((order) => {
         // Count products
         const items = order.items || [];
@@ -98,24 +100,24 @@ function AdminDashboard() {
           productCounts[item.name] =
             (productCounts[item.name] || 0) + item.quantity;
         });
-  
+
         // Daily revenue
         const date = new Date(order.created_at).toLocaleDateString("en-GB");
         dailyRevenue[date] =
           (dailyRevenue[date] || 0) + Number(order.total_amount);
       });
-  
+
       // Format data for charts
       const popularProducts = Object.entries(productCounts)
         .map(([name, quantity]) => ({ name, quantity }))
         .sort((a, b) => b.quantity - a.quantity)
         .slice(0, 5);
-  
+
       const revenueByDay = Object.entries(dailyRevenue)
         .map(([date, amount]) => ({ date, amount }))
         .sort((a, b) => new Date(a.date) - new Date(b.date))
         .slice(-7);
-  
+
       setAnalytics({
         totalRevenue: revenue,
         totalOrders: deliveredOrders.length,
@@ -162,7 +164,17 @@ function AdminDashboard() {
       {/* Summary Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6}>
-          <Paper sx={{ p: 2 }}>
+          <Paper
+            sx={{
+              p: 2,
+              background: "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              borderRadius: "15px",
+              color: "white",
+            }}
+          >
             <Typography variant="h6" gutterBottom>
               Total Revenue
             </Typography>
@@ -172,7 +184,17 @@ function AdminDashboard() {
           </Paper>
         </Grid>
         <Grid item xs={12} sm={6}>
-          <Paper sx={{ p: 2 }}>
+          <Paper
+            sx={{
+              p: 2,
+              background: "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              borderRadius: "15px",
+              color: "white",
+            }}
+          >
             <Typography variant="h6" gutterBottom>
               Total Orders
             </Typography>
@@ -184,7 +206,17 @@ function AdminDashboard() {
       {/* Charts */}
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2 }}>
+          <Paper
+            sx={{
+              p: 2,
+              background: "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              borderRadius: "15px",
+              color: "white",
+            }}
+          >
             <Typography variant="h6" gutterBottom>
               Popular Products
             </Typography>
@@ -209,8 +241,18 @@ function AdminDashboard() {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
+          <Paper
+            sx={{
+              p: 2,
+              background: "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              borderRadius: "15px",
+              color: "black",
+            }}
+          >
+            <Typography variant="h6" gutterBottom sx={{color: "white"}}>
               Revenue by Day (Last 7 Days)
             </Typography>
             <BarChart width={400} height={300} data={analytics.revenueByDay}>
@@ -219,7 +261,7 @@ function AdminDashboard() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="amount" name="Revenue" fill="#8884d8" />
+              <Bar dataKey="amount" name="Revenue" fill="lightgreen" />
             </BarChart>
           </Paper>
         </Grid>

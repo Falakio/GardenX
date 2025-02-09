@@ -38,6 +38,14 @@ body,
   height: 100%;
 }
 
+.MuiTabs-indicator, .css-1bkzoph-MuiTabs-indicator {
+  background-color: #fff;
+}
+
+.css-1wdyj8e-MuiButtonBase-root-MuiButton-root {
+  background-color: #fff;
+}
+
 html, body, #root  {
   background-color: #2c604a;
 }

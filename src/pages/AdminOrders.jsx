@@ -30,14 +30,26 @@ import {
 } from "@mui/material";
 
 import { Visibility, Assessment } from "@mui/icons-material";
-// import { sendEmail } from '../services/smtp';
-import { getAdminOrders, getUserProfile, getOrderInfo, supabase } from "../services/supabase";
+import { sendEmail } from "../services/smtp";
+import {
+  getAdminOrders,
+  getUserProfile,
+  getOrderInfo,
+  supabase,
+} from "../services/supabase";
 
 const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
-const generateStatusEmailHtml = (profile, cart, total, orderMode, orderId, orderStatus) => {
+const generateStatusEmailHtml = (
+  profile,
+  cart,
+  total,
+  orderMode,
+  orderId,
+  orderStatus
+) => {
   const itemsHtml = cart
     .map(
       (item) => `
@@ -50,23 +62,28 @@ const generateStatusEmailHtml = (profile, cart, total, orderMode, orderId, order
     )
     .join("");
 
-    const orderModeMessage = profile.role !== "visitor" ? `<p><strong>Order Mode:</strong> ${orderMode}</p>` : "";
-    const status = orderStatus[0].toUpperCase() + orderStatus.slice(1);
+  const orderModeMessage =
+    profile.role !== "visitor"
+      ? `<p><strong>Order Mode:</strong> ${orderMode}</p>`
+      : "";
+  const status = orderStatus[0].toUpperCase() + orderStatus.slice(1);
 
   let statusMessage = "";
   let reorderButton = "";
 
   if (orderStatus === "cancelled") {
-    statusMessage = orderMode === "pickup"
-      ? "<p>Your order has been cancelled as it was not collected on the same day.</p>"
-      : "<p>Your order has been cancelled as the payment could not be made or the recipient was not present to receive the order.</p>";
-      reorderButton = `<p>You can reorder the same items if you wish using the green 'Reorder' button below.</p>
+    statusMessage =
+      orderMode === "pickup"
+        ? "<p>Your order has been cancelled as it was not collected on the same day.</p>"
+        : "<p>Your order has been cancelled as the payment could not be made or the recipient was not present to receive the order.</p>";
+    reorderButton = `<p>You can reorder the same items if you wish using the green 'Reorder' button below.</p>
                      <a href="https://oisgarden.vercel.app/reorder/${orderId}" style="display: inline-block; padding: 10px 20px; color: white; background-color: green; border-radius: 5px; text-decoration: none;">Reorder</a>`;
   } else if (orderStatus === "delivered") {
-    statusMessage = orderMode === "pickup"
-      ? "<p>Your order has been picked up.</p>"
-      : "<p>Your order has been delivered.</p>";
-      reorderButton = `<p>You can reorder the same items if you wish using the green 'Reorder' button below.</p>
+    statusMessage =
+      orderMode === "pickup"
+        ? "<p>Your order has been picked up.</p>"
+        : "<p>Your order has been delivered.</p>";
+    reorderButton = `<p>You can reorder the same items if you wish using the green 'Reorder' button below.</p>
       <a href="https://oisgarden.vercel.app/reorder/${orderId}" style="display: inline-block; padding: 10px 20px; color: white; background-color: green; border-radius: 5px; text-decoration: none;">Reorder</a>`;
   } else if (orderStatus === "picked up") {
     statusMessage = "<p>Your order has been picked up.</p>";
@@ -79,22 +96,30 @@ const generateStatusEmailHtml = (profile, cart, total, orderMode, orderId, order
         <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); max-width: 600px; width: 100%;">
           <div style="text-align: center; margin-bottom: 20px; background-color: f2f2f2; padding: 10px; border-radius: 8px;">
             <img src="https://i.imgur.com/j5AOMcr.png" alt="App Logo" style="height: 50px; margin-bottom: 10px;" />
-             <h1 style="color: green; margin: 0;">OIS Organic Garden</h1>
+             <h1 style="color: green; margin: 0;">GardenX</h1>
           </div>
         <h4 style="color: green;">Order ID: ${orderId}</h4>
         <span style="background-color: ${getStatusColorCode(orderStatus)}; color: ${getStatusTextColor(orderStatus)}; padding: 8px 12px; font-weight: bold; border: 2px solid ${getStatusTextColor(orderStatus)}; border-radius: 20px;">${status}</span>
         <h2 style="color: green;">Order Summary</h2>
         <p><strong>Name:</strong> ${profile.firstName} ${profile.lastName}</p>
-        ${profile.role === "parent" ? `
+        ${
+          profile.role === "parent"
+            ? `
           <h3 style="color: green;">Student Information</h3>
           <p><strong>Name:</strong> ${profile.details.student_first_name} ${profile.details.student_last_name}</p>
           <p><strong>Class:</strong> ${profile.details.student_class} ${profile.details.student_section}</p>
           <p><strong>GEMS ID:</strong> ${profile.details.student_gems_id}</p>
-        ` : ""}
-        ${profile.role === "staff" ? `
+        `
+            : ""
+        }
+        ${
+          profile.role === "staff"
+            ? `
           <h3 style="color: green;">Staff Information</h3>
           <p><strong>Staff GEMS ID:</strong> ${profile.details.staff_gems_id}</p>
-        ` : ""}
+        `
+            : ""
+        }
         <h3 style="color: green;">Items</h3>
         <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
           <thead>
@@ -301,7 +326,7 @@ function EarningsReportDialog({ open, onClose, orders }) {
         </head>
         <body>
           <div class="header">
-            <h1>OIS Organic Garden - Earnings Report</h1>
+            <h1>GardenX - Earnings Report</h1>
             <h3>Period: ${dateRange}</h3>
             <p><strong>Note:</strong> This report includes delivered orders only</p>
           </div>
@@ -646,29 +671,37 @@ export default function AdminOrders() {
           ? { delivered_at: new Date().toISOString() }
           : {}),
       };
-  
+
       const { error } = await supabase
         .from("orders")
         .update(updateData)
         .eq("id", orderId);
-  
+
       if (error) throw error;
-  
+
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
           order.id === orderId ? { ...order, status: newStatus } : order
         )
       );
-  
+
       // Fetch order info
-      const { profile, cartItems, total, orderMode } = await getOrderInfo(orderId);
-  
+      const { profile, cartItems, total, orderMode } =
+        await getOrderInfo(orderId);
+
       // Generate email content
-      const emailHtml = generateStatusEmailHtml(profile, cartItems, total, orderMode, orderId, newStatus);
-  
+      const emailHtml = generateStatusEmailHtml(
+        profile,
+        cartItems,
+        total,
+        orderMode,
+        orderId,
+        newStatus
+      );
+
       // Send email notification
       // await sendEmail(profile.email, `Your Order has been ${newStatus}`, 'Your order status has been updated.', emailHtml);
-  
+
       setSnackbar({
         open: true,
         message: "Order status updated successfully",
@@ -738,7 +771,17 @@ export default function AdminOrders() {
           Earnings Report
         </Button>
       </Box>
-      <TableContainer component={Paper}>
+      <TableContainer
+        component={Paper}
+        sx={{
+          background: "rgba(255, 255, 255, 0.5)",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: "15px",
+          color: "white"
+        }}
+      >
         <Table>
           <TableHead>
             <TableRow>
@@ -758,7 +801,9 @@ export default function AdminOrders() {
               <TableRow key={order.id}>
                 <TableCell>{order.id.substring(0, 8)}</TableCell>
                 <TableCell>{order.created_at.substring(0, 10)}</TableCell>
-                <TableCell>{order.user_profiles.firstName} {order.user_profiles.lastName}</TableCell>
+                <TableCell>
+                  {order.user_profiles.firstName} {order.user_profiles.lastName}
+                </TableCell>
                 <TableCell>
                   <Box
                     component="a"

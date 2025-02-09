@@ -20,9 +20,9 @@ const Footer = () => {
       </Typography>
       <Typography color="#fff">
         GardenX is a subsidiary of Al Falak Network
-        </Typography>
+      </Typography>
       <Typography variant="body2" color="textSecondary">
-        <Link href="/credits" sx={{color: "lightgreen"}}>Credits</Link>
+        <Link href="/credits" sx={{textDecoration: "none"}}>Credits</Link>
       </Typography>
     </Box>
   );

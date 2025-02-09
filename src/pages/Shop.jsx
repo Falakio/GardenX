@@ -135,11 +135,11 @@ export default function Shop() {
           }}
         >
           {[
-            { emoji: "🧺", value: "" },
-            { emoji: "🍅", value: "Vegetable" },
-            { emoji: "🌱", value: "Plant" },
-            { emoji: "🫘", value: "Seed" },
-            { emoji: "✏️", value: "Misc" },
+            { emoji: "🧺", value: "", name: "All" },
+            { emoji: "🍅", value: "Vegetable", name:"Vegetable" },
+            { emoji: "🌱", value: "Plant", name:"Plant" },
+            { emoji: "🫘", value: "Seed", name:"Seed" },
+            { emoji: "✏️", value: "Misc", name:"Misc" },
           ].map((cat) => (
             <Box
               key={cat.value}
@@ -152,16 +152,16 @@ export default function Shop() {
                 border: "none",
                 padding: "8px 16px",
                 cursor: "pointer",
-                height: "4rem",
-                width: "4rem",
-                fontSize: "1.5rem",
+                height: { xs: "4rem", md: "5rem" }, 
+                // font size on mobile 1rem, on desktop 1.5rem
+                fontSize: { xs: "1rem", md: "1.5rem" },
                 fontFamily: "Montserrat, sans-serif",
                 "&:hover": {
                   backgroundColor: "#1e3d2b",
                 },
               }}
             >
-              {cat.emoji}
+              {cat.emoji} <br></br> {cat.name}
             </Box>
           ))}
         </Box>
