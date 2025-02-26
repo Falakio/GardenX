@@ -14,7 +14,7 @@ const getSupabaseConfig = (schoolId) => {
   return { url, anonKey };
 };
 
-const schoolId = localStorage.getItemN('selectedSchool') || 'school1';
+const schoolId = localStorage.getItem('selectedSchool') || 'school1';
 
 const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseConfig(schoolId);
 let supabase = createClient(supabaseUrl, supabaseAnonKey);
