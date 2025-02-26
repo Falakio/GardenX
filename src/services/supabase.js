@@ -1,20 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { sendNotification } from './notifications';
 
-const callbackURL = "https://67be8d1a8c0e3c2fd869bdef--capable-blini-2697f4.netlify.app";
-
-const checkCallbackURL = async () => {
-  try {
-    const response = await fetch(callbackURL);
-    if (!response.ok) {
-      throw new Error(`Callback URL check failed with status: ${response.status}`);
-    }
-  } catch (error) {
-    console.error("Error checking callback URL:", error);
-    throw error;
-  }
-};
-
 const getSupabaseConfig = (schoolId) => {
   const url = import.meta.env[`VITE_SUPABASE_URL_${schoolId.toUpperCase()}`];
   const anonKey = import.meta.env[`VITE_SUPABASE_ANON_KEY_${schoolId.toUpperCase()}`];
@@ -39,7 +25,6 @@ export const isAdmin = (user) => {
 
 // Auth helper functions
 export const signUpWithEmail = async (email, password) => {
-  await checkCallbackURL();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -54,7 +39,6 @@ export const signUpWithEmail = async (email, password) => {
 };
 
 export const signInWithEmail = async (email, password) => {
-  await checkCallbackURL();
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -63,14 +47,12 @@ export const signInWithEmail = async (email, password) => {
 };
 
 export const signOut = async () => {
-  await checkCallbackURL();
   const { error } = await supabase.auth.signOut();
   return { error };
 };
 
 // Database helper functions
 export const getProducts = async () => {
-  await checkCallbackURL();
   const { data, error } = await supabase
     .from("products")
     .select("*")
@@ -79,7 +61,6 @@ export const getProducts = async () => {
 };
 
 export const createUserProfile = async (profileData) => {
-  await checkCallbackURL();
   try {
     const { data, error } = await supabase
       .from("user_profiles")
@@ -101,7 +82,6 @@ export const createUserProfile = async (profileData) => {
 };
 
 export const getUserProfile = async (userId) => {
-  await checkCallbackURL();
   try {
     const { data, error } = await supabase
       .from("user_profiles")
@@ -114,6 +94,7 @@ export const getUserProfile = async (userId) => {
       throw error;
     }
 
+
     return { data, error: null };
   } catch (error) {
     console.error("getUserProfile error:", error);
@@ -122,7 +103,6 @@ export const getUserProfile = async (userId) => {
 };
 
 export const updateUserProfile = async (userId, profileData) => {
-  await checkCallbackURL();
   try {
     const { data, error } = await supabase
       .from("user_profiles")
@@ -144,9 +124,10 @@ export const updateUserProfile = async (userId, profileData) => {
 };
 
 export const createOrder = async (orderData) => {
-  await checkCallbackURL();
   try {
-    const { data: profile, error: profileError } = await getUserProfile(orderData.user_id);
+    const { data: profile, error: profileError } = await getUserProfile(
+      orderData.user_id
+    );
     if (profileError) throw profileError;
 
     let productsQuery = supabase
@@ -217,6 +198,7 @@ export const createOrder = async (orderData) => {
       return { error: orderError };
     }
 
+
     // Update stock for each item
     for (const item of updatedItems) {
       const product = stockMap[item.id] || stockMap[item.name];
@@ -232,7 +214,6 @@ export const createOrder = async (orderData) => {
         return { error: updateError };
       }
     }
-
     // Format notification message
     const itemsList = orderData.items.map(item => `${item.name} x ${item.quantity}`).join('\n');
     const notificationMessage = `Name: ${profile.firstName} ${profile.lastName}\n${itemsList}`;
@@ -248,7 +229,6 @@ export const createOrder = async (orderData) => {
 };
 
 export const updateProduct = async (id, updates) => {
-  await checkCallbackURL();
   const { data, error } = await supabase
     .from("products")
     .update(updates)
@@ -258,7 +238,6 @@ export const updateProduct = async (id, updates) => {
 };
 
 export const fixInvalidStockValues = async () => {
-  await checkCallbackURL();
   const { data: products, error: fetchError } = await supabase
     .from("products")
     .select("*")
@@ -288,8 +267,8 @@ export const fixInvalidStockValues = async () => {
   return { data: products, error: null };
 };
 
+// supabase.js
 export const getUserOrders = async (userId) => {
-  await checkCallbackURL();
   try {
     const { data, error } = await supabase
       .from("orders")
@@ -320,7 +299,6 @@ export const getUserOrders = async (userId) => {
 };
 
 export const updateOrderStatus = async (orderId, status) => {
-  await checkCallbackURL();
   try {
     const { data, error } = await supabase
       .from("orders")
@@ -338,7 +316,6 @@ export const updateOrderStatus = async (orderId, status) => {
 };
 
 export const deleteAuthUser = async (userId) => {
-  await checkCallbackURL();
   try {
     const { error } = await supabase.rpc("delete_user", { user_id: userId });
     if (error) throw error;
@@ -350,7 +327,6 @@ export const deleteAuthUser = async (userId) => {
 };
 
 export const checkGemsIdExists = async (gemsId, excludeUserId = null) => {
-  await checkCallbackURL();
   try {
     let query = supabase
       .from("user_profiles")
@@ -375,7 +351,6 @@ export const checkGemsIdExists = async (gemsId, excludeUserId = null) => {
 
 // Image upload helper functions
 export const uploadProductImage = async (file, productId) => {
-  await checkCallbackURL();
   try {
     const fileExt = file.name.split(".").pop();
     const fileName = `products/${productId}.${fileExt}`;
@@ -404,7 +379,6 @@ export const uploadProductImage = async (file, productId) => {
 };
 
 export const deleteProductImage = async (fileName) => {
-  await checkCallbackURL();
   try {
     // Extract just the file path from the full URL
     const filePath = fileName.includes("/")
@@ -425,7 +399,6 @@ export const deleteProductImage = async (fileName) => {
 };
 
 export const getAdminOrders = async () => {
-  await checkCallbackURL();
   try {
     const { data, error } = await supabase
       .from("orders")
@@ -457,7 +430,6 @@ export const getAdminOrders = async () => {
 };
 
 export const getOrderInfo = async (orderId) => {
-  await checkCallbackURL();
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .select('*')
@@ -480,7 +452,6 @@ export const getOrderInfo = async (orderId) => {
 };
 
 export const reorderItems = async (orderId) => {
-  await checkCallbackURL();
   const { profile, cartItems, total, orderMode } = await getOrderInfo(orderId);
 
   const newOrderData = {
@@ -497,7 +468,7 @@ export const reorderItems = async (orderId) => {
     .single();
 
   if (error) throw error;
-
+  
   // Format notification message
   const itemsList = cartItems.map(item => `${item.name} x ${item.quantity}`).join('\n');
   const notificationMessage = `Name: ${profile.firstName} ${profile.lastName}\n${itemsList}`;
@@ -506,10 +477,9 @@ export const reorderItems = async (orderId) => {
   await sendNotification('New Order Created', notificationMessage);
 
   return newOrder;
-};
+}; 
 
 export const sendMagicLink = async (email) => {
-  await checkCallbackURL();
   try {
     const { data, error } = await supabase.auth.signInWithOtp({
       email,
@@ -527,7 +497,6 @@ export const sendMagicLink = async (email) => {
 };
 
 export const verifyOtp = async (token_hash, type) => {
-  await checkCallbackURL();
   try {
     const { error } = await supabase.auth.verifyOtp({ token_hash, type });
     if (error) throw error;
