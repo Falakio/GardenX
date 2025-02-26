@@ -3,6 +3,18 @@ import { sendNotification } from './notifications';
 
 const callbackURL = "https://67be8d1a8c0e3c2fd869bdef--capable-blini-2697f4.netlify.app"
 
+const checkCallbackURL = async () => {
+  try {
+    const response = await fetch(callbackURL);
+    if (!response.ok) {
+      throw new Error(`Callback URL check failed with status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error checking callback URL:", error);
+    throw error;
+  }
+};
+
 const getSupabaseConfig = (schoolId) => {
   const url = import.meta.env[`VITE_SUPABASE_URL_${schoolId.toUpperCase()}`];
   const anonKey = import.meta.env[`VITE_SUPABASE_ANON_KEY_${schoolId.toUpperCase()}`];
