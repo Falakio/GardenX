@@ -470,12 +470,6 @@ export default function Checkout() {
               >
                 Pickup
               </Button>
-              <Button
-                variant={orderMode === "delivery" ? "contained" : "outlined"}
-                onClick={() => setOrderMode("delivery")}
-              >
-                Delivery
-              </Button>
             </Box>
           )}
           <Box sx={{ mt: 2 }}>
