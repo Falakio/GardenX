@@ -29,6 +29,7 @@ export default function AdminManualEntry() {
   const [error, setError] = useState(null);
   const [category, setCategory] = useState("");
   const [inStockOnly, setInStockOnly] = useState(false);
+  const [freeOrder, setFreeOrder] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -57,11 +58,15 @@ export default function AdminManualEntry() {
     setInStockOnly(e.target.checked);
   };
 
+  const handleFreeOrderChange = (e) => {
+    setFreeOrder(e.target.checked);
+  };
+
   const handlePlaceOrder = async () => {
     try {
       const orderData = {
         user_id: user.id,
-        total_amount: total,
+        total_amount: freeOrder ? 0 : total,
         items: cart.map((item) => ({
           id: item.id,
           name: item.name,
@@ -88,7 +93,7 @@ export default function AdminManualEntry() {
     .filter((product) => {
       return (
         (category === "" || product.category === category) &&
-        (!inStockOnly || product.stock_quantity > 0)
+        product.stock_quantity > 0 // Ensure only in-stock items are displayed
       );
     })
     .sort((a, b) => b.stock_quantity - a.stock_quantity); // Sort by stock quantity
@@ -134,8 +139,14 @@ export default function AdminManualEntry() {
           </Grid>
         ))}
       </Grid>
-      <Box sx={{ mt: 4, display: "flex", justifyContent: "space-between" }}>
-        <Typography variant="h6">Total: AED {total.toFixed(2)}</Typography>
+      <Box sx={{ mt: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography variant="h6">Total: AED {freeOrder ? 0 : total.toFixed(2)}</Typography>
+        <FormControlLabel
+          control={
+            <Checkbox checked={freeOrder} onChange={handleFreeOrderChange} />
+          }
+          label="Free Order"
+        />
         <Button
           variant="contained"
           color="primary"
