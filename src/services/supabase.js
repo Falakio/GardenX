@@ -415,7 +415,8 @@ export const getAdminOrders = async () => {
         )
       `
       )
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(50);
 
     if (error) {
       console.error("Supabase error:", error);
