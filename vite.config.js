@@ -11,7 +11,6 @@ export default defineConfig({
         "favicon.svg",
         "favicon.ico",
         "robots.txt",
-        "icon.png",
         "apple-touch-icon.png",
       ],
       manifest: {
@@ -26,29 +25,49 @@ export default defineConfig({
         orientation: "portrait",
         icons: [
           {
-            src: "icon.png",
+            src: "/icon-192.png",
             sizes: "192x192",
             type: "image/png"
           },
           {
-            src: "icon.png",
+            src: "/icon-512.png",
             sizes: "512x512",
             type: "image/png"
           },
           {
-            src: "apple-touch-icon.png",
-            sizes: "1024x1024",
-            type: "image/png"
+            src: "/apple-touch-icon.png",
+            sizes: "180x180",
+            type: "image/png",
+            purpose: "any maskable"
           }
         ],
-        display_override: [
-          "standalone",
-          "fullscreen",
-          "minimal-ui"
-        ],
+        categories: ["lifestyle", "health", "food"],
         lang: "en",
         dir: "ltr"
       },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module'
+      }
     }),
   ],
   server: {
